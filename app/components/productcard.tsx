@@ -20,7 +20,7 @@ export default function ProductCard({ product }: { product: Product }) {
       <p className="text-gray-500 text-sm line-clamp-2">{product.description}</p>
 
       <div className="mt-4 flex justify-between items-center">
-        <span className="font-bold">${product.price}</span>
+        <span className="font-bold text-black">${product.price}</span>
         <button
           onClick={() =>
             addToCart({
