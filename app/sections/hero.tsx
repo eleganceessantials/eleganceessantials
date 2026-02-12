@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay } from "swiper/modules";
 import { useRouter } from "next/navigation";
@@ -15,7 +15,7 @@ const slides = [
     title: "MacBook Pro",
     subtitle: "Smart devices for your daily life",
     off: "30% OFF",
-    link: "/product/macbook-pro",
+    link: "/product/macbook-pro-m3",
   },
   {
     id: 2,
@@ -43,17 +43,19 @@ const Hero = () => {
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
     const rect = e.currentTarget.getBoundingClientRect();
-    const x = ((e.clientX - rect.left) / rect.width - 0.5) * 20; // max 10px left/right
-    const y = ((e.clientY - rect.top) / rect.height - 0.5) * 20; // max 10px up/down
+    const x = ((e.clientX - rect.left) / rect.width - 0.5) * 10;
+    const y = ((e.clientY - rect.top) / rect.height - 0.5) * 10;
     setMousePos({ x, y });
   };
 
-  const handleMouseLeave = () => {
-    setMousePos({ x: 0, y: 0 });
-  };
+  const handleMouseLeave = () => setMousePos({ x: 0, y: 0 });
+
+  const imageTransform = useMemo(() => {
+    return `scale(1.01) translate3d(${mousePos.x}px, ${mousePos.y}px, 0)`;
+  }, [mousePos.x, mousePos.y]);
 
   return (
-    <section className="w-full h-screen">
+    <section className="w-full">
       <Swiper
         modules={[Autoplay]}
         autoplay={{ delay: 4000, disableOnInteraction: false }}
@@ -63,54 +65,53 @@ const Hero = () => {
         {slides.map((slide) => (
           <SwiperSlide key={slide.id}>
             <div
-              className="relative w-full h-screen overflow-hidden"
+              className="relative w-full h-[90vh] min-h-[480px] overflow-hidden"
               onMouseMove={handleMouseMove}
               onMouseLeave={handleMouseLeave}
             >
-              {/* Fullscreen Image with mouse parallax */}
+              {/* Background Image */}
               <img
                 src={slide.image}
                 alt={slide.title}
-                className="w-full h-full object-cover transition-transform duration-500 ease-out"
-                style={{
-                  transform: `scale(1.05) translateX(${mousePos.x}px) translateY(${mousePos.y}px)`,
-                }}
+                className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 ease-out"
+                style={{ transform: imageTransform }}
               />
 
-              {/* Dark overlay for better text contrast */}
-              <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-black/10" />
+              {/* Gradient Overlay */}
+              <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/50 to-black/20" />
 
-              {/* Content */}
-              <div className="absolute inset-0 flex items-center px-6 md:px-20">
-                <div className="max-w-xl text-white">
-                  <span className="inline-block mb-3 px-4 py-1 text-sm bg-black/70 rounded-full">
-                    {slide.tag}
-                  </span>
-
-                  <h1 className="text-4xl md:text-5xl font-bold leading-tight mb-3 drop-shadow-lg">
-                    {slide.title}
-                  </h1>
-
-                  <p className="text-lg opacity-90 mb-4 drop-shadow-sm">
-                    {slide.subtitle}
-                  </p>
-
-                  <div className="flex items-center gap-4 mb-6">
-                    <span className="text-2xl font-bold text-red-400 drop-shadow-md">
-                      {slide.off}
+              {/* Content Container */}
+              <div className="relative h-full flex items-center">
+                <div className="max-w-[1400px] mx-auto px-6 md:px-16 w-full">
+                  <div className="max-w-xl text-white">
+                    <span className="inline-block mb-4 px-4 py-1.5 text-sm bg-white/10 backdrop-blur-md rounded-full border border-white/20">
+                      {slide.tag}
                     </span>
-                    <span className="text-sm line-through opacity-70">
-                      Original Price
-                    </span>
+
+                    <h1 className="text-4xl md:text-5xl font-bold leading-tight mb-4">
+                      {slide.title}
+                    </h1>
+
+                    <p className="text-lg opacity-90 mb-6">
+                      {slide.subtitle}
+                    </p>
+
+                    <div className="flex items-center gap-4 mb-6">
+                      <span className="text-2xl font-bold text-red-400">
+                        {slide.off}
+                      </span>
+                      <span className="text-sm line-through opacity-70">
+                        Limited Time
+                      </span>
+                    </div>
+
+                    <button
+                      onClick={() => router.push(slide.link)}
+                      className="px-8 py-3 bg-white text-black font-semibold rounded-lg hover:bg-gray-200 transition"
+                    >
+                      Shop Now
+                    </button>
                   </div>
-
-                  {/* Functional Shop Now Button */}
-                  <button
-                    onClick={() => router.push(slide.link)}
-                    className="px-7 py-3 bg-black hover:bg-gray-700 transition rounded-lg font-semibold"
-                  >
-                    Shop Now
-                  </button>
                 </div>
               </div>
             </div>
