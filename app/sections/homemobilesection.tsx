@@ -6,7 +6,7 @@ import ProductCard from "../components/productcard";
 export default function HomeMobileSection() {
   // Filter products by category "mobile"
   const mobileProducts = products.filter(
-    (product) => product.category === "mobile"
+    (product) => product.category === "smartphone"
   );
 
   return (
