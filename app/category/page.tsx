@@ -6,13 +6,10 @@ import { products, type Category } from "@/app/data/productListing";
 
 const categories: (Category | "all")[] = [
   "all",
-  "smartphone",
-  "laptop",
-  "headphone",
-  "smartwatch",
-  "camera",
-  "gaming",
-  "accessory",
+  "SkinCare",
+  "Makeup",
+  "HairCare",
+  "Fragrance",
 ];
 
 export default function CategoryPage() {
