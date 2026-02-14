@@ -60,9 +60,9 @@ export default function CheckoutForm() {
 
   if (success) {
     return (
-      <section className="pb-16 bg-[#FCF8F8]">
+      <section className="py-16 bg-[#FCF8F8]">
         <div className="max-w-3xl mx-auto px-4 sm:px-6">
-          <div className="bg-white border border-pink-100 p-8 rounded-2xl shadow-sm text-center">
+          <div className="bg-white border border-pink-100 p-8 rounded-3xl shadow-sm text-center">
             <div className="mx-auto w-14 h-14 rounded-full bg-[#fdeded] flex items-center justify-center text-2xl">
               ✅
             </div>
@@ -91,10 +91,10 @@ export default function CheckoutForm() {
   }
 
   return (
-    <section className="pb-16 bg-[#FCF8F8]">
+    <section className="py-16 bg-[#FCF8F8]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         {cart.length === 0 ? (
-          <div className="max-w-3xl mx-auto bg-white border border-pink-100 p-8 rounded-2xl shadow-sm text-center">
+          <div className="max-w-3xl mx-auto bg-white border border-pink-100 p-8 rounded-3xl shadow-sm text-center">
             <div className="mx-auto w-14 h-14 rounded-full bg-[#fdeded] flex items-center justify-center text-2xl">
               🛒
             </div>
@@ -114,76 +114,9 @@ export default function CheckoutForm() {
           </div>
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8">
-            {/* LEFT: Customer Form */}
-            <div className="lg:col-span-7">
-              <div className="bg-white border border-pink-100 rounded-2xl shadow-sm p-6 sm:p-8">
-                <div className="flex items-center gap-3">
-                  <span className="h-7 w-1.5 rounded-full bg-[#DB005B]" />
-                  <h2 className="text-xl sm:text-2xl font-extrabold text-black">
-                    Customer Details
-                  </h2>
-                </div>
-
-                <p className="mt-2 text-sm text-gray-600">
-                  Please enter accurate details so we can deliver smoothly.
-                </p>
-
-                <div className="mt-6 space-y-4">
-                  <input
-                    type="text"
-                    name="name"
-                    placeholder="Full Name"
-                    value={form.name}
-                    onChange={handleChange}
-                    className="w-full border border-pink-100 bg-[#FDF4F5] rounded-xl px-4 py-3 text-black outline-none focus:ring-2 focus:ring-[#DB005B]/20"
-                  />
-
-                  <input
-                    type="email"
-                    name="email"
-                    placeholder="Email"
-                    value={form.email}
-                    onChange={handleChange}
-                    className="w-full border border-pink-100 bg-[#FDF4F5] rounded-xl px-4 py-3 text-black outline-none focus:ring-2 focus:ring-[#DB005B]/20"
-                  />
-
-                  <textarea
-                    name="address"
-                    placeholder="Full Address"
-                    value={form.address}
-                    onChange={handleChange}
-                    className="w-full border border-pink-100 bg-[#FDF4F5] rounded-xl px-4 py-3 text-black outline-none focus:ring-2 focus:ring-[#DB005B]/20 min-h-[110px]"
-                  />
-
-                  <input
-                    type="tel"
-                    name="phone"
-                    placeholder="Phone Number"
-                    value={form.phone}
-                    onChange={handleChange}
-                    className="w-full border border-pink-100 bg-[#FDF4F5] rounded-xl px-4 py-3 text-black outline-none focus:ring-2 focus:ring-[#DB005B]/20"
-                  />
-                </div>
-
-                <button
-                  onClick={handlePlaceOrder}
-                  disabled={loading}
-                  className="w-full mt-6 py-4 rounded-full border border-[#DB005B] bg-[#DB005B] text-white font-semibold text-lg transition cursor-pointer
-                             hover:bg-white hover:text-[#DB005B]
-                             disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {loading ? "Placing Order..." : "Place Order →"}
-                </button>
-
-                <p className="mt-3 text-xs text-gray-500 text-center">
-                  🔒 Secure checkout • Your details remain private.
-                </p>
-              </div>
-            </div>
-
-            {/* RIGHT: Order Summary (Sticky) */}
-            <div className="lg:col-span-5">
-              <div className="lg:sticky lg:top-28 bg-white border border-pink-100 rounded-2xl shadow-sm p-6 sm:p-8">
+            {/* ✅ RIGHT first on desktop (reversed) */}
+            <div className="lg:col-span-5 lg:order-2">
+              <div className="lg:sticky lg:top-28 bg-white border border-pink-100 rounded-3xl shadow-sm p-6 sm:p-8">
                 <div className="flex items-center gap-3">
                   <span className="h-7 w-1.5 rounded-full bg-[#DB005B]" />
                   <h2 className="text-xl sm:text-2xl font-extrabold text-black">
@@ -243,6 +176,82 @@ export default function CheckoutForm() {
                     🔁 Returns
                   </div>
                 </div>
+              </div>
+            </div>
+
+            {/* ✅ LEFT second on desktop */}
+            <div className="lg:col-span-7 lg:order-1">
+              <div className="bg-white border border-pink-100 rounded-3xl shadow-sm p-6 sm:p-8">
+                <div className="flex items-center justify-between gap-4">
+                  <div className="flex items-center gap-3">
+                    <span className="h-7 w-1.5 rounded-full bg-[#DB005B]" />
+                    <h2 className="text-xl sm:text-2xl font-extrabold text-black">
+                      Customer Details
+                    </h2>
+                  </div>
+
+                  <button
+                    onClick={() => router.push("/category?cat=all")}
+                    className="hidden sm:inline-flex items-center gap-2 text-sm font-semibold text-[#DB005B] hover:opacity-80 transition cursor-pointer"
+                  >
+                    Continue Shopping →
+                  </button>
+                </div>
+
+                <p className="mt-2 text-sm text-gray-600">
+                  Please enter accurate details so we can deliver smoothly.
+                </p>
+
+                <div className="mt-6 space-y-4">
+                  <input
+                    type="text"
+                    name="name"
+                    placeholder="Full Name"
+                    value={form.name}
+                    onChange={handleChange}
+                    className="w-full border border-pink-100 bg-[#FDF4F5] rounded-xl px-4 py-3 text-black outline-none focus:ring-2 focus:ring-[#DB005B]/20"
+                  />
+
+                  <input
+                    type="email"
+                    name="email"
+                    placeholder="Email"
+                    value={form.email}
+                    onChange={handleChange}
+                    className="w-full border border-pink-100 bg-[#FDF4F5] rounded-xl px-4 py-3 text-black outline-none focus:ring-2 focus:ring-[#DB005B]/20"
+                  />
+ <input
+                    type="tel"
+                    name="phone"
+                    placeholder="Phone Number"
+                    value={form.phone}
+                    onChange={handleChange}
+                    className="w-full border border-pink-100 bg-[#FDF4F5] rounded-xl px-4 py-3 text-black outline-none focus:ring-2 focus:ring-[#DB005B]/20"
+                  />
+                  <textarea
+                    name="address"
+                    placeholder="Full Address"
+                    value={form.address}
+                    onChange={handleChange}
+                    className="w-full border border-pink-100 bg-[#FDF4F5] rounded-xl px-4 py-3 text-black outline-none focus:ring-2 focus:ring-[#DB005B]/20 min-h-[110px]"
+                  />
+
+                 
+                </div>
+
+                <button
+                  onClick={handlePlaceOrder}
+                  disabled={loading}
+                  className="w-full mt-6 py-4 rounded-full border border-[#DB005B] bg-[#DB005B] text-white font-semibold text-lg transition cursor-pointer
+                             hover:bg-white hover:text-[#DB005B]
+                             disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {loading ? "Placing Order..." : "Place Order →"}
+                </button>
+
+                <p className="mt-3 text-xs text-gray-500 text-center">
+                  🔒 Secure checkout • Your details remain private.
+                </p>
               </div>
             </div>
           </div>

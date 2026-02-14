@@ -45,7 +45,8 @@ export default function CategoryListing() {
   };
 
   return (
-    <section className="min-h-screen bg-[#FCF8F8] pt-20 px-6">
+   <section className="bg-[#FCF8F8] py-20 px-6">
+
       {/* Category Filters */}
       <div className="max-w-7xl mx-auto flex flex-wrap gap-3 mb-6">
         {categoryOptions.map((cat) => {
