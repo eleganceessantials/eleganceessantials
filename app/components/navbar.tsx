@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useCart } from "../context/CartContext";
 import { CartDrawer } from "@/app/components/cartdrawer";
@@ -8,119 +8,123 @@ import { CartDrawer } from "@/app/components/cartdrawer";
 export default function Navbar() {
   const router = useRouter();
   const { cartCount } = useCart();
+
   const [mobileMenu, setMobileMenu] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [scrollDirection, setScrollDirection] = useState<"up" | "down">("up");
-  const [lastScrollY, setLastScrollY] = useState(0);
 
   const menuItems = [
     { name: "Home", link: "/" },
-    { name: "Shop", link: "/category" },
+    { name: "Shop", link: "/category?cat=all" },
   ];
 
-  // Scroll hide/show logic
-  useEffect(() => {
-    const handleScroll = () => {
-      if (window.scrollY > lastScrollY && window.scrollY > 50) {
-        setScrollDirection("down");
-      } else {
-        setScrollDirection("up");
-      }
-      setLastScrollY(window.scrollY);
-    };
-
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, [lastScrollY]);
+  const go = (link: string) => {
+    router.push(link);
+    setMobileMenu(false);
+  };
 
   return (
     <>
-      <nav
-        className={`fixed top-0 w-full z-50 transition-transform duration-300 backdrop-blur-md bg-white/30 shadow-md border-b border-pink-100 ${
-          scrollDirection === "down" ? "-translate-y-full" : "translate-y-0"
-        }`}
-      >
-        <div className="max-w-7xl mx-auto flex justify-between items-center h-16 px-4">
-          {/* Logo + Name */}
-          <div
-            className="flex items-center cursor-pointer gap-2"
-            onClick={() => router.push("/")}
-          >
-            <div className="w-10 h-10 flex items-center justify-center bg-black text-white font-bold text-lg rounded-full shadow-sm">
-              BB
-            </div>
-            <span className="font-bold text-xl tracking-wide hover:text-pink-400 transition">
-              BeautyBar.
-            </span>
-          </div>
-
-          {/* Desktop Menu */}
-          <div className="hidden md:flex items-center gap-6">
-            {menuItems.map((item) => (
-              <button
-                key={item.name}
-                onClick={() => router.push(item.link)}
-                className="hover:text-pink-400 transition font-medium"
+      <nav className="fixed top-0 w-full z-50">
+        <div className="mx-auto max-w-7xl px-4">
+          <div className="mt-3 mb-2 rounded-2xl border border-pink-200 bg-white/80 backdrop-blur-md shadow-sm">
+            <div className="flex h-16 items-center justify-between px-4">
+              
+              {/* Logo */}
+              <div
+                className="flex items-center cursor-pointer gap-2"
+                onClick={() => go("/")}
               >
-                {item.name}
-              </button>
-            ))}
-
-            {/* Cart Button (Desktop) */}
-            <button
-              onClick={() => setDrawerOpen(true)}
-              className="relative hover:text-pink-400 transition text-lg"
-            >
-              🛒
-              {cartCount > 0 && (
-                <span className="absolute -top-2 -right-3 bg-white text-black rounded-full w-5 h-5 flex items-center justify-center text-xs shadow-sm">
-                  {cartCount}
+                <div className="w-10 h-10 flex items-center justify-center bg-[#DB005B] text-white font-bold text-lg rounded-full shadow-sm">
+                  BB
+                </div>
+                <span className="font-extrabold text-xl tracking-tight text-[#DB005B] cursor-pointer">
+                  BeautyBar<span className="text-black">.</span>
                 </span>
-              )}
-            </button>
-          </div>
+              </div>
 
-          {/* Mobile Menu Toggle */}
-          <button
-            className="md:hidden text-2xl"
-            onClick={() => setMobileMenu(!mobileMenu)}
-          >
-            ☰
-          </button>
+              {/* Desktop Menu */}
+              <div className="hidden md:flex items-center gap-8">
+                {menuItems.map((item) => (
+                  <button
+                    key={item.name}
+                    onClick={() => go(item.link)}
+                    className="font-semibold text-[#DB005B] hover:opacity-80 transition cursor-pointer"
+                  >
+                    {item.name}
+                  </button>
+                ))}
 
-          {/* Mobile Menu */}
-          {mobileMenu && (
-            <div className="absolute top-16 right-0 bg-white w-full flex flex-col items-start p-4 space-y-2 md:hidden border-t border-pink-100 shadow-md">
-              {menuItems.map((item) => (
+                {/* Cart Button */}
                 <button
-                  key={item.name}
-                  onClick={() => {
-                    router.push(item.link);
-                    setMobileMenu(false);
-                  }}
-                  className="hover:text-pink-400 transition py-1"
+                  onClick={() => setDrawerOpen(true)}
+                  className="relative rounded-full px-3 py-2 hover:bg-pink-50 transition cursor-pointer"
+                  aria-label="Open cart"
                 >
-                  {item.name}
-                </button>
-              ))}
+                  <span className="text-lg text-[#DB005B]">🛒</span>
 
-              {/* Cart Button (Mobile) */}
-              <button
-                onClick={() => {
-                  setDrawerOpen(true);
-                  setMobileMenu(false);
-                }}
-                className="relative mt-2 hover:text-pink-400 transition py-1"
-              >
-                🛒 Cart
-                {cartCount > 0 && (
-                  <span className="absolute -top-2 -right-3 bg-white text-black rounded-full w-5 h-5 flex items-center justify-center text-xs shadow-sm">
-                    {cartCount}
-                  </span>
-                )}
-              </button>
+                  {cartCount > 0 && (
+                    <span className="absolute -top-1 -right-1 bg-[#DB005B] text-white rounded-full min-w-[20px] h-5 px-1 flex items-center justify-center text-xs font-bold shadow-sm">
+                      {cartCount}
+                    </span>
+                  )}
+                </button>
+              </div>
+
+              {/* Mobile Right */}
+              <div className="md:hidden flex items-center gap-2">
+                {/* Cart */}
+                <button
+                  onClick={() => setDrawerOpen(true)}
+                  className="relative rounded-full px-3 py-2 hover:bg-pink-50 transition cursor-pointer"
+                  aria-label="Open cart"
+                >
+                  <span className="text-lg text-[#DB005B]">🛒</span>
+
+                  {cartCount > 0 && (
+                    <span className="absolute -top-1 -right-1 bg-[#DB005B] text-white rounded-full min-w-[20px] h-5 px-1 flex items-center justify-center text-xs font-bold shadow-sm">
+                      {cartCount}
+                    </span>
+                  )}
+                </button>
+
+                {/* Menu Toggle */}
+                <button
+                  className="rounded-full px-3 py-2 hover:bg-pink-50 transition text-xl text-[#DB005B] cursor-pointer"
+                  onClick={() => setMobileMenu(!mobileMenu)}
+                  aria-label="Toggle menu"
+                >
+                  ☰
+                </button>
+              </div>
             </div>
-          )}
+
+            {/* Mobile Menu */}
+            {mobileMenu && (
+              <div className="md:hidden px-4 pb-4">
+                <div className="rounded-2xl border border-pink-200 bg-white shadow-sm p-3 flex flex-col gap-2">
+                  {menuItems.map((item) => (
+                    <button
+                      key={item.name}
+                      onClick={() => go(item.link)}
+                      className="w-full text-left px-3 py-2 rounded-xl font-semibold text-[#DB005B] hover:bg-pink-50 transition cursor-pointer"
+                    >
+                      {item.name}
+                    </button>
+                  ))}
+
+                  <button
+                    onClick={() => {
+                      setDrawerOpen(true);
+                      setMobileMenu(false);
+                    }}
+                    className="w-full text-left px-3 py-2 rounded-xl font-semibold text-[#DB005B] hover:bg-pink-50 transition cursor-pointer"
+                  >
+                    Cart
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </nav>
 
@@ -128,7 +132,6 @@ export default function Navbar() {
       <CartDrawer
         isOpen={drawerOpen}
         onClose={() => setDrawerOpen(false)}
-        // className removed to avoid error
       />
     </>
   );

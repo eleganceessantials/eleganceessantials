@@ -11,68 +11,45 @@ export default function LatestProducts() {
   const latestProducts = [...products].slice(-4).reverse();
 
   return (
-    <section className="py-12 bg-pink-200">
+    <section className="py-14 bg-[#FCF8F8]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         
-        {/* Section Header */}
-        <div className="flex items-center justify-between mb-6">
-          <div>
+        {/* Section Header (Centered) */}
+        <div className="text-center mb-10">
+          <div className="flex items-center justify-center gap-3">
+            <span className="h-8 w-1.5 rounded-full bg-[#DB005B]" />
             <h2 className="text-2xl sm:text-3xl font-extrabold text-black">
               Latest Products
             </h2>
-            <p className="text-sm text-gray-700 mt-1">
-              Newly added items in our store
-            </p>
           </div>
 
-          {/* Desktop Show More Button */}
-          <button
-            onClick={() => router.push("/category")}
-            className="hidden sm:inline-flex items-center gap-2 px-5 py-2.5 rounded-xl 
-                       border border-black bg-black text-white font-semibold 
-                       shadow-sm transition
-                       hover:bg-white hover:text-black hover:border-black 
-                       active:scale-[0.98]"
-          >
-            Show More →
-          </button>
+          <p className="text-sm sm:text-base text-gray-600 mt-3 max-w-2xl mx-auto">
+            Fresh arrivals curated for you new launches, trending picks, and must-have essentials.
+          </p>
         </div>
 
         {/* Products Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-6 mb-8">
-          {latestProducts.map((product) => (
-            <div
-              key={product.id}
-              className="group bg-white rounded-2xl p-4 shadow flex flex-col items-center justify-center transition hover:shadow-xl"
-            >
-              {/* Image wrapper fills full tab */}
-              <div className="w-full aspect-square overflow-hidden rounded-xl bg-gray-100">
-                <img
-                  src={product.image}
-                  alt={product.name}
-                  className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
-                />
-              </div>
+     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-5 sm:gap-6">
 
-              <p className="mt-4 font-semibold text-gray-800 text-center">
-                {product.name}
-              </p>
-            </div>
+          {latestProducts.map((product) => (
+            <ProductCard key={product.id} product={product} />
           ))}
         </div>
 
-        {/* Mobile Show More (centered below grid) */}
-        <div className="mt-8 flex justify-center sm:hidden">
+        {/* CTA Button Under Cards */}
+        <div className="mt-12 flex justify-center">
           <button
-            onClick={() => router.push("/category")}
-            className="px-6 py-3 rounded-xl border border-black bg-black text-white font-semibold 
-                       shadow-md transition
-                       hover:bg-white hover:text-black hover:border-black 
+            onClick={() => router.push("/category?cat=all")}
+            className="px-10 py-3.5 rounded-full 
+                       border border-[#DB005B] bg-[#DB005B] text-white font-semibold 
+                       shadow-sm transition cursor-pointer
+                       hover:bg-white hover:text-[#DB005B]
                        active:scale-[0.98]"
           >
-            Show More Products
+            View All Products →
           </button>
         </div>
+
       </div>
     </section>
   );

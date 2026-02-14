@@ -9,18 +9,36 @@ export default function ProductCard({ product }: { product: Product }) {
   const { addToCart } = useCart();
 
   return (
-    <div className="bg-white rounded-xl p-4 shadow hover:shadow-lg transition relative">
+    <div className="group bg-white rounded-2xl p-4 shadow-sm hover:shadow-xl transition-all duration-300 relative border border-transparent hover:border-pink-100">
+      
+      {/* Image */}
       <Link href={`/product/${product.slug}`}>
-        <div className="w-full h-48 relative rounded-lg overflow-hidden mb-4 cursor-pointer">
-          <Image src={product.image} alt={product.name} fill className="object-cover rounded-lg" />
+        <div className="w-full h-56 relative rounded-xl overflow-hidden mb-4 cursor-pointer bg-gray-100">
+          <Image
+            src={product.image}
+            alt={product.name}
+            fill
+            className="object-cover transition-transform duration-500 group-hover:scale-110"
+          />
         </div>
       </Link>
 
-      <h3 className="font-semibold text-black">{product.name}</h3>
-      <p className="text-gray-500 text-sm line-clamp-2">{product.description}</p>
+      {/* Product Name */}
+      <h3 className="font-semibold text-black text-base leading-tight mb-1">
+        {product.name}
+      </h3>
 
-      <div className="mt-4 flex justify-between items-center">
-        <span className="font-bold text-black">${product.price}</span>
+      {/* Description */}
+      <p className="text-gray-500 text-sm line-clamp-2 min-h-[40px]">
+        {product.description}
+      </p>
+
+      {/* Price + Button */}
+      <div className="mt-5 flex justify-between items-center">
+        <span className="font-bold text-lg text-black">
+          ${product.price}
+        </span>
+
         <button
           onClick={() =>
             addToCart({
@@ -31,9 +49,9 @@ export default function ProductCard({ product }: { product: Product }) {
               quantity: 1,
             })
           }
-          className="bg-black-400 text-black px-3 py-1 rounded-lg text-sm hover:bg-black-300 transition"
+          className="px-4 py-2 rounded-full text-sm font-medium bg-[#fdeded] text-black border border-pink-200 hover:bg-pink-200 transition-all duration-200 active:scale-95"
         >
-          Add
+          Add to Cart
         </button>
       </div>
     </div>

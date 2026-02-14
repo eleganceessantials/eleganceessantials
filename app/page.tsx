@@ -5,7 +5,6 @@ import Categories from "./sections/categories";
 import CustomerCare from "./sections/customercare";
 import Hero from "./sections/hero";
 import LatestProducts from "./sections/LatestProducts";
-import Watch from "./sections/watch";
 export default function Home() {
   return (
     <>
@@ -13,7 +12,6 @@ export default function Home() {
       <Hero/>
       <Categories/>
       <LatestProducts/>
-      {/* <Watch/> */}
       <CustomerCare/>
       <Footer/>
     </>

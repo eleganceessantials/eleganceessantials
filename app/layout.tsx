@@ -8,7 +8,7 @@ import Navbar from "./components/navbar";
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
 
-export const metadata: Metadata = { title: "hassantjanjua", description: "Shopping App" };
+export const metadata: Metadata = { title: "BeautyBar", description: "Get Your Glowup Now!" };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
