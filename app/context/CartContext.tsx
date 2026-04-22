@@ -4,7 +4,7 @@ import React, { createContext, useContext, useState, ReactNode, useEffect } from
 
 // Type for cart item
 export type CartItem = {
-  id: number;
+  id: string;
   name: string;
   price: number;
   image: string;
@@ -17,7 +17,7 @@ type CartContextType = {
   cartCount: number;
   total: number;
   addToCart: (item: CartItem) => void;
-  removeFromCart: (id: number) => void;
+  removeFromCart: (id: string) => void;
   clearCart: () => void;
 };
 
@@ -51,7 +51,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     });
   };
 
-  const removeFromCart = (id: number) => {
+  const removeFromCart = (id: string) => {
     setCart((prev) => prev.filter((i) => i.id !== id));
   };
 

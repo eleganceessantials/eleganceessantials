@@ -2,10 +2,21 @@
 
 import { useRouter } from "next/navigation";
 import ProductCard from "@/app/components/productcard";
-import { products } from "@/app/data/productListing";
+import { useEffect, useState } from "react";
 
 export default function LatestProducts() {
   const router = useRouter();
+  const [products, setProducts] = useState<any[]>([]);
+
+  useEffect(() => {
+    fetch("/api/products")
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data)) setProducts(data);
+        else console.error("API returned non-array data:", data);
+      })
+      .catch(err => console.error(err));
+  }, []);
 
   // Latest products = last 4 added in array
   const latestProducts = [...products].slice(-4).reverse();

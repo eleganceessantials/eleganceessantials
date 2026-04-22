@@ -21,11 +21,9 @@ export default function Footer() {
           {/* Brand + trust */}
           <div className="lg:col-span-5">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-2xl bg-white text-black flex items-center justify-center font-extrabold text-xl shadow-sm">
-                BB
-              </div>
+              <img src="/logo.png" alt="Logo" className="w-12 h-12 rounded-2xl object-cover shadow-sm bg-white p-1" />
               <div className="text-2xl font-extrabold tracking-tight">
-                BeautyBar<span className="text-[#DB005B]">.</span>
+                Elegance Essentials<span className="text-[#DB005B]">.</span>
               </div>
             </div>
 
@@ -216,7 +214,7 @@ export default function Footer() {
 
         {/* Bottom (no top border, extra bottom space) */}
          <div className="mt-12 border-t border-white/10 pt-6 flex flex-col sm:flex-row items-center justify-center gap-3 text-sm text-white/65">
-          © {new Date().getFullYear()} BeautyBar. All rights reserved.
+          © {new Date().getFullYear()} Elegance Essentials. All rights reserved.
         </div>
       </div>
     </footer>

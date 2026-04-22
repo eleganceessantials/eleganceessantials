@@ -35,30 +35,30 @@ export async function POST(req: Request) {
   });
 
   const itemsHtml = items
-    .map((item) => `<li>${item.name} - ${item.quantity} × $${item.price}</li>`)
+    .map((item) => `<li>${item.name} - ${item.quantity} × Rs. ${item.price}</li>`)
     .join("");
 
   const buyerMail = {
-    from: `"hassantjanjua" <${process.env.SMTP_USER}>`,
+    from: `"Elegance Essentials" <${process.env.SMTP_USER}>`,
     to: customer.email,
     subject: "Your Order Confirmation",
     html: `
       <h2>Thank you for your order, ${customer.name}!</h2>
       <ul>${itemsHtml}</ul>
-      <p>Total: $${total}</p>
+      <p>Total: Rs. ${total}</p>
       <p>Delivery Address: ${customer.address}</p>
       <p>Phone: ${customer.phone}</p>
     `,
   };
 
   const adminMail = {
-    from: `"hassantjanjua" <${process.env.SMTP_USER}>`,
+    from: `"Elegance Essentials" <${process.env.SMTP_USER}>`,
     to: process.env.ADMIN_EMAIL,
     subject: "New Order Received",
     html: `
       <h2>New Order from ${customer.name}</h2>
       <ul>${itemsHtml}</ul>
-      <p>Total: $${total}</p>
+      <p>Total: Rs. ${total}</p>
       <p>Address: ${customer.address}</p>
       <p>Phone: ${customer.phone}</p>
     `,

@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useCart } from "../context/CartContext";
-import type { Product } from "../data/productListing";
+import type { Product } from "../types/product";
 
 export default function ProductCard({ product }: { product: Product }) {
   const { addToCart } = useCart();
@@ -32,25 +32,38 @@ export default function ProductCard({ product }: { product: Product }) {
         </p>
 
         {/* Price + Button */}
-        <div className="mt-5 flex justify-between items-center">
-          <span className="font-bold text-lg text-black">${product.price}</span>
+        <div className="mt-5 flex flex-col space-y-2">
+          <div className="flex items-center space-x-2">
+            {product.discountPrice ? (
+              <>
+                <span className="font-bold text-lg text-pink-600">Rs. {product.discountPrice}</span>
+                <span className="text-gray-400 line-through text-sm">Rs. {product.price}</span>
+              </>
+            ) : (
+              <span className="font-bold text-lg text-black">Rs. {product.price}</span>
+            )}
+          </div>
 
-          <button
-            onClick={(e) => {
-              e.preventDefault(); // stop Link navigation
-              e.stopPropagation(); // stop bubbling
-              addToCart({
-                id: product.id,
-                name: product.name,
-                price: product.price,
-                image: product.image,
-                quantity: 1,
-              });
-            }}
-            className="px-4 py-2 rounded-full text-sm font-medium bg-[#fdeded] text-black border border-pink-200 hover:bg-pink-200 transition-all duration-200 active:scale-95 cursor-pointer"
-          >
-            Add to Cart
-          </button>
+          <div className="flex justify-between items-center w-full">
+            <span className="text-xs font-medium text-green-600 bg-green-50 px-2 py-0.5 rounded">Free Delivery</span>
+
+            <button
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                addToCart({
+                  id: (product._id || product.id) as string,
+                  name: product.name,
+                  price: product.discountPrice || product.price,
+                  image: product.image,
+                  quantity: 1,
+                });
+              }}
+              className="px-4 py-2 rounded-full text-sm font-medium bg-[#fdeded] text-black border border-pink-200 hover:bg-pink-200 transition-all duration-200 active:scale-95 cursor-pointer"
+            >
+              Add to Cart
+            </button>
+          </div>
         </div>
       </div>
     </Link>

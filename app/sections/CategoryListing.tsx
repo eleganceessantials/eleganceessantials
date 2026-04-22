@@ -1,9 +1,8 @@
 "use client";
 
-import { useMemo } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import ProductCard from "@/app/components/productcard";
-import { products } from "@/app/data/productListing";
 
 function toTitleCase(value: string) {
   return value
@@ -14,13 +13,24 @@ function toTitleCase(value: string) {
 export default function CategoryListing() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const [products, setProducts] = useState<any[]>([]);
+
+  useEffect(() => {
+    fetch("/api/products")
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data)) setProducts(data);
+        else console.error("API returned non-array data:", data);
+      })
+      .catch(err => console.error(err));
+  }, []);
 
   const selectedFromUrlRaw = (searchParams.get("cat") || "all").trim();
 
   const categoryOptions = useMemo(() => {
     const unique = Array.from(new Set(products.map((p) => String(p.category))));
     return ["all", ...unique];
-  }, []);
+  }, [products]);
 
   const selectedCategory = useMemo(() => {
     const found = categoryOptions.find(
@@ -34,7 +44,7 @@ export default function CategoryListing() {
     return products.filter(
       (p) => String(p.category).toLowerCase() === selectedCategory.toLowerCase()
     );
-  }, [selectedCategory]);
+  }, [selectedCategory, products]);
 
   const setCategoryInUrl = (cat: string) => {
     if (cat === "all") {

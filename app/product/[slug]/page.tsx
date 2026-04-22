@@ -1,10 +1,9 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import { products } from "@/app/data/productListing";
 import { useCart } from "@/app/context/CartContext";
 import ProductCard from "@/app/components/productcard";
 import ProductReviews from "@/app/sections/ProductReviews";
@@ -21,14 +20,32 @@ export default function ProductDetailPage() {
   const router = useRouter();
   const slug = params.slug as string;
 
-  const product = products.find((p) => p.slug === slug);
+  const [product, setProduct] = useState<any>(null);
+  const [allProducts, setAllProducts] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
   const { addToCart } = useCart();
 
   const [qty, setQty] = useState<number>(1);
   const [added, setAdded] = useState(false);
-
-  // ✅ FAQs inactive by default
   const [openFaq, setOpenFaq] = useState<number | null>(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [prodRes, allRes] = await Promise.all([
+          fetch(`/api/products/${slug}`),
+          fetch("/api/products")
+        ]);
+        if (prodRes.ok) setProduct(await prodRes.json());
+        if (allRes.ok) setAllProducts(await allRes.json());
+      } catch (e) {
+        console.error(e);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, [slug]);
 
   const safeQty = useMemo(() => {
     const n = Number.isFinite(qty) ? qty : 1;
@@ -40,21 +57,15 @@ export default function ProductDetailPage() {
   const handlePlus = () =>
     setQty((q) => Math.min(99, (Number.isFinite(q) ? q : 1) + 1));
 
-  if (!product)
-    return (
-      <div className="min-h-screen flex items-center justify-center pt-20 text-black">
-        Product not found
-      </div>
-    );
-
   const relatedProducts = useMemo(() => {
+    if (!product) return [];
     const cat = String(product.category).toLowerCase();
-    return products
+    return allProducts
       .filter(
         (p) => p.slug !== product.slug && String(p.category).toLowerCase() === cat
       )
       .slice(0, 4);
-  }, [product.slug, product.category]);
+  }, [product, allProducts]);
 
   const faqs = [
     {
@@ -74,6 +85,34 @@ export default function ProductDetailPage() {
       a: "Yes — your checkout is secure. We don’t store sensitive payment details, and your order is protected.",
     },
   ];
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-white">
+        <div className="relative">
+          <div className="w-16 h-16 border-4 border-purple-100 border-t-purple-600 rounded-full animate-spin"></div>
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="w-2 h-2 bg-purple-600 rounded-full animate-pulse"></div>
+          </div>
+        </div>
+        <p className="mt-6 text-gray-400 font-bold tracking-widest text-xs uppercase animate-pulse">
+          Elegance is loading...
+        </p>
+      </div>
+    );
+  }
+
+  if (!product)
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-white text-gray-900">
+        <span className="text-4xl mb-4">🔍</span>
+        <h2 className="text-2xl font-black">Product not found</h2>
+        <p className="text-gray-500 mt-2 mb-8">We couldn't find the item you're looking for.</p>
+        <Link href="/category?cat=all" className="bg-purple-600 text-white px-8 py-3 rounded-full font-bold shadow-lg hover:bg-purple-700 transition-all">
+          Browse Collection
+        </Link>
+      </div>
+    );
 
   return (
     <section className="min-h-screen bg-[#FCF8F8]">
@@ -184,11 +223,25 @@ export default function ProductDetailPage() {
                 {/* ✅ Removed rating row from right column */}
 
                 {/* Price */}
-                <div className="mt-4 flex items-end gap-2">
-                  <p className="text-2xl sm:text-3xl font-extrabold text-[#DB005B]">
-                    ${product.price}
-                  </p>
-                  <span className="text-xs text-gray-500 pb-1">incl. taxes*</span>
+                <div className="mt-4 flex flex-col">
+                  <div className="flex items-end gap-2">
+                    {product.discountPrice ? (
+                      <>
+                        <p className="text-2xl sm:text-3xl font-extrabold text-[#DB005B]">
+                          Rs. {product.discountPrice}
+                        </p>
+                        <span className="text-lg text-gray-400 line-through pb-1">Rs. {product.price}</span>
+                      </>
+                    ) : (
+                      <p className="text-2xl sm:text-3xl font-extrabold text-[#DB005B]">
+                        Rs. {product.price}
+                      </p>
+                    )}
+                    <span className="text-xs text-gray-500 pb-1">incl. taxes*</span>
+                  </div>
+                  <div className="mt-1">
+                    <span className="text-sm font-semibold text-green-600 bg-green-50 px-3 py-1 rounded-full">Free Delivery</span>
+                  </div>
                 </div>
 
                 <div className="mt-5 h-px w-full bg-black/10" />
@@ -259,9 +312,9 @@ export default function ProductDetailPage() {
                   <button
                     onClick={() => {
                       addToCart({
-                        id: product.id,
+                        id: product._id || product.id,
                         name: product.name,
-                        price: product.price,
+                        price: product.discountPrice || product.price,
                         image: product.image,
                         quantity: safeQty,
                       });

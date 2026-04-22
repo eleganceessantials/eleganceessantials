@@ -31,14 +31,12 @@ export default function Navbar() {
               
               {/* Logo */}
               <div
-                className="flex items-center cursor-pointer gap-2"
+                className="flex items-center cursor-pointer gap-3"
                 onClick={() => go("/")}
               >
-                <div className="w-10 h-10 flex items-center justify-center bg-[#DB005B] text-white font-bold text-lg rounded-full shadow-sm">
-                  BB
-                </div>
+                <img src="/logo.png" alt="Logo" className="w-10 h-10 rounded-full object-cover shadow-sm" />
                 <span className="font-extrabold text-xl tracking-tight text-[#DB005B] cursor-pointer">
-                  BeautyBar<span className="text-black">.</span>
+                  Elegance Essentials<span className="text-black">.</span>
                 </span>
               </div>
 

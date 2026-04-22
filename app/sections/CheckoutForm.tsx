@@ -56,11 +56,11 @@ export default function CheckoutForm() {
       .map((item) => {
         const unit = Number(item.price).toFixed(2);
         const line = Number(item.price * item.quantity).toFixed(2);
-        return `- ${item.name} (x${item.quantity}) — $${unit} each (Line: $${line})`;
+        return `- ${item.name} (x${item.quantity}) — Rs. ${unit} each (Line: Rs. ${line})`;
       })
       .join("\n");
 
-    return `Hi BeautyBar, I’d like to place an order.
+    return `Hi Elegance Essentials, I’d like to place an order.
 
 Name: ${form.name}
 Phone: ${form.phone}
@@ -70,7 +70,7 @@ Delivery Address: ${form.address}
 Items:
 ${itemsText}
 
-Total: $${Number(total).toFixed(2)}
+Total: Rs. ${Number(total).toFixed(2)}
 
 Please confirm delivery time. Thank you.`;
   }, [cart, form, total]);
@@ -149,7 +149,7 @@ Please confirm delivery time. Thank you.`;
   const copyPhone = async () => {
     try {
       await navigator.clipboard.writeText(DISPLAY_WHATSAPP_NUMBER);
-      alert("BeautyBar WhatsApp number copied.");
+      alert("Elegance Essentials WhatsApp number copied.");
     } catch (err) {
       console.error(err);
       alert("Copy failed. Please select and copy manually.");
@@ -225,7 +225,7 @@ Please confirm delivery time. Thank you.`;
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                 <div>
                   <div className="text-xs font-semibold text-gray-600">
-                    BeautyBar WhatsApp
+                    Elegance Essentials WhatsApp
                   </div>
                   <div className="text-sm font-extrabold text-black mt-1">
                     {DISPLAY_WHATSAPP_NUMBER}
@@ -285,7 +285,7 @@ Please confirm delivery time. Thank you.`;
                     Order Total
                   </div>
                   <div className="mt-2 text-2xl font-extrabold text-[#DB005B]">
-                    ${Number(total).toFixed(2)}
+                    Rs. {Number(total).toFixed(2)}
                   </div>
 
                   <div className="mt-4 rounded-xl bg-[#FDF4F5] border border-pink-100 p-4 text-sm text-gray-700">
@@ -304,7 +304,7 @@ Please confirm delivery time. Thank you.`;
             </div>
 
             <div className="mt-10 text-center text-xs text-gray-500">
-              © {new Date().getFullYear()} BeautyBar. Secure checkout experience.
+          © {new Date().getFullYear()} Elegance Essentials. Secure checkout experience.
             </div>
           </div>
         </div>
@@ -360,11 +360,11 @@ Please confirm delivery time. Thank you.`;
                           {item.name}
                         </p>
                         <p className="text-gray-600 text-sm mt-1">
-                          {item.quantity} × ${item.price}
+                          {item.quantity} × Rs. {item.price}
                         </p>
                       </div>
                       <div className="font-semibold text-black text-sm">
-                        ${Number(item.price * item.quantity).toFixed(2)}
+                        Rs. {Number(item.price * item.quantity).toFixed(2)}
                       </div>
                     </div>
                   ))}
@@ -373,7 +373,7 @@ Please confirm delivery time. Thank you.`;
                 <div className="mt-6 border-t border-pink-100 pt-4">
                   <div className="flex justify-between text-gray-600 text-sm">
                     <span>Subtotal</span>
-                    <span>${Number(total).toFixed(2)}</span>
+                    <span>Rs. {Number(total).toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between text-gray-600 text-sm mt-2">
                     <span>Delivery</span>
@@ -383,7 +383,7 @@ Please confirm delivery time. Thank you.`;
                   <div className="flex justify-between font-extrabold text-lg mt-4 text-black">
                     <span>Total</span>
                     <span className="text-[#DB005B]">
-                      ${Number(total).toFixed(2)}
+                      Rs. {Number(total).toFixed(2)}
                     </span>
                   </div>
                 </div>
@@ -485,7 +485,7 @@ Please confirm delivery time. Thank you.`;
         )}
 
         <div className="mt-12 text-center text-xs text-gray-500">
-          © {new Date().getFullYear()} BeautyBar. Secure checkout experience.
+          © {new Date().getFullYear()} Elegance Essentials. Secure checkout experience.
         </div>
       </div>
     </section>

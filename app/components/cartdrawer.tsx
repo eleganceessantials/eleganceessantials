@@ -90,11 +90,11 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                       {item.name}
                     </p>
                     <p className="text-sm text-gray-500 mt-1">
-                      ${item.price} × {item.quantity}
+                      Rs. {item.price} × {item.quantity}
                     </p>
 
                     <p className="text-sm font-bold text-black mt-2">
-                      Subtotal: ${Number(item.price) * Number(item.quantity)}
+                      Subtotal: Rs. {Number(item.price) * Number(item.quantity)}
                     </p>
                   </div>
 
@@ -116,7 +116,7 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
             <div className="flex items-center justify-between">
               <p className="text-sm text-gray-500">Total</p>
               <p className="text-xl font-extrabold text-[#DB005B]">
-                ${total}
+                Rs. {total}
               </p>
             </div>
 
