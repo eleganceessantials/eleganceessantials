@@ -45,10 +45,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             <div className="absolute -inset-1 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-full blur opacity-25 group-hover:opacity-50 transition duration-1000 group-hover:duration-200"></div>
             <img src="/logo.png" alt="Logo" className="relative w-28 h-28 rounded-full shadow-2xl object-cover border-4 border-white" />
           </div>
-          
+
           <h1 className="text-4xl font-[900] text-gray-900 mb-2 text-center tracking-tight">Elegance Essentials</h1>
           <p className="text-gray-400 mb-10 text-center text-base font-medium">Restricted Administrative Access</p>
-          
+
           <form onSubmit={handleLogin} className="space-y-6 w-full">
             <div className="space-y-2 group">
               <label className="text-[11px] font-black text-purple-400 uppercase tracking-[0.2em] ml-1 group-focus-within:text-purple-600 transition-colors">Username</label>
@@ -98,24 +98,29 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               <img src="/logo.png" alt="Logo" className="relative w-20 h-20 rounded-2xl shadow-md object-cover border-2 border-white" />
             </div>
             <span className="text-xl font-[1000] bg-gradient-to-br from-purple-900 via-indigo-900 to-gray-900 bg-clip-text text-transparent text-center leading-[1.1] tracking-tighter">
-              Elegance<br/>Essentials
+              Elegance<br />Essentials
             </span>
           </Link>
         </div>
-        
+
         <nav className="flex-1 p-8 space-y-3">
           <p className="text-[10px] font-[900] text-purple-300 uppercase tracking-[0.25em] mb-6 ml-4">Management</p>
-          
+
           <Link href="/admin" className="flex items-center space-x-4 px-5 py-4 rounded-[1.25rem] hover:bg-purple-50 text-gray-500 hover:text-purple-700 transition-all font-bold group cursor-pointer active:scale-[0.98]">
             <span className="text-xl opacity-40 group-hover:opacity-100 transition-opacity">📈</span>
             <span className="tracking-tight">Dashboard</span>
           </Link>
-          
+
           <Link href="/admin/products" className="flex items-center space-x-4 px-5 py-4 rounded-[1.25rem] hover:bg-purple-50 text-gray-500 hover:text-purple-700 transition-all font-bold group cursor-pointer active:scale-[0.98]">
             <span className="text-xl opacity-40 group-hover:opacity-100 transition-opacity">📦</span>
             <span className="tracking-tight">Inventory</span>
           </Link>
-          
+
+          <Link href="/admin/categories" className="flex items-center space-x-4 px-5 py-4 rounded-[1.25rem] hover:bg-purple-50 text-gray-500 hover:text-purple-700 transition-all font-bold group cursor-pointer active:scale-[0.98]">
+            <span className="text-xl opacity-40 group-hover:opacity-100 transition-opacity">📁</span>
+            <span className="tracking-tight">Categories</span>
+          </Link>
+
           <div className="pt-10">
             <p className="text-[10px] font-[900] text-purple-300 uppercase tracking-[0.25em] mb-6 ml-4">Shortcut</p>
             <Link href="/" className="flex items-center space-x-4 px-5 py-4 rounded-[1.25rem] hover:bg-indigo-50 text-gray-500 hover:text-indigo-700 transition-all font-bold group cursor-pointer active:scale-[0.98]">
@@ -126,7 +131,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </nav>
 
         <div className="p-8 mt-auto border-t border-purple-50/50">
-          <button 
+          <button
             onClick={handleLogout}
             className="w-full flex items-center justify-center space-x-3 px-6 py-4 text-sm font-black text-rose-500 bg-rose-50 hover:bg-rose-100 rounded-[1.25rem] transition-all active:scale-[0.96] shadow-sm hover:shadow-rose-100 cursor-pointer"
           >

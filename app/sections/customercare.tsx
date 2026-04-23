@@ -2,74 +2,31 @@
 
 import React from "react";
 
-const customerCareTabs = [
+const features = [
   {
-    id: 1,
-    title: "Free Shipping",
-    description:
-      "Get your orders delivered quickly and safely to your doorstep at no extra cost.",
-    svg: (
-      <svg
-        width="64"
-        height="64"
-        viewBox="0 0 64 64"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      >
-        <rect x="5" y="25" width="40" height="15" rx="2" />
-        <rect x="45" y="30" width="14" height="10" rx="1" />
-        <circle cx="15" cy="45" r="5" />
-        <circle cx="50" cy="45" r="5" />
-        <line x1="60" y1="32" x2="64" y2="32" />
-        <line x1="60" y1="37" x2="64" y2="37" />
+    title: "Express Delivery",
+    desc: "Swift and secure shipping across the nation, ensuring your essentials arrive fresh.",
+    icon: (
+      <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M13 10V3L4 14h7v7l9-11h-7z" />
       </svg>
     ),
   },
   {
-    id: 2,
-    title: "Return & Refund",
-    description: "Easily return products and get your refund processed hassle-free.",
-    svg: (
-      <svg
-        width="64"
-        height="64"
-        viewBox="0 0 64 64"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      >
-        <rect x="15" y="20" width="34" height="24" rx="2" />
-        <path d="M32 12 v16 h8" />
-        <polyline points="40,28 32,36 24,28" />
-        <line x1="32" y1="36" x2="32" y2="50" strokeDasharray="2 2" />
+    title: "Luxury Quality",
+    desc: "Every product is 100% authentic and curated from the world's most trusted beauty brands.",
+    icon: (
+      <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
       </svg>
     ),
   },
   {
-    id: 3,
-    title: "Customer Support",
-    description: "Our support team is always ready to help you with any queries or issues.",
-    svg: (
-      <svg
-        width="64"
-        height="64"
-        viewBox="0 0 64 64"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      >
-        <circle cx="32" cy="20" r="8" />
-        <path d="M24 20 v10 a8 8 0 0 0 16 0 v-10" />
-        <rect x="22" y="30" width="6" height="12" rx="2" />
-        <rect x="36" y="30" width="6" height="12" rx="2" />
-        <path d="M32 28 v16" />
+    title: "Secure Checkout",
+    desc: "Your data is protected. Shop with confidence using our secure WhatsApp ordering system.",
+    icon: (
+      <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
       </svg>
     ),
   },
@@ -77,40 +34,41 @@ const customerCareTabs = [
 
 export default function CustomerCare() {
   return (
-    <section className="py-16 sm:py-20 bg-[#FCF8F8]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section className="py-24 bg-[#FCF8F8] overflow-hidden">
+      <div className="max-w-7xl mx-auto px-6">
         {/* Heading */}
-        <div className="text-center mb-10 sm:mb-12">
-          <div className="flex items-center justify-center gap-3">
+        <div className="text-center mb-20">
+          <div className="flex items-center justify-center gap-3 mb-4">
             <span className="h-8 w-1.5 rounded-full bg-[#DB005B]" />
-            <h2 className="text-3xl md:text-4xl font-extrabold text-black">
-              Customer Care
+            <h2 className="text-4xl md:text-5xl font-[1000] text-black tracking-tighter">
+              The Elegance Experience
             </h2>
           </div>
-          <p className="mt-3 text-gray-600 max-w-2xl mx-auto">
-            A smooth shopping experience — fast delivery, easy returns, and support you can trust.
+          <p className="text-gray-500 font-medium max-w-2xl mx-auto text-lg">
+            We've refined every detail of your journey to ensure beauty is delivered with absolute perfection.
           </p>
         </div>
 
-        {/* Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 sm:gap-6">
-          {customerCareTabs.map((tab) => (
-            <div
-              key={tab.id}
-              className="group bg-white rounded-2xl border border-transparent hover:border-pink-100 shadow-sm hover:shadow-xl transition-all duration-300 p-6 flex flex-col items-center text-center"
-            >
-              {/* Icon */}
-              <div className="w-16 h-16 rounded-2xl bg-[#fdeded] flex items-center justify-center text-black group-hover:text-[#DB005B] transition">
-                {tab.svg}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
+          {features.map((f, i) => (
+            <div key={i} className="group relative">
+              <div className="flex flex-col items-center text-center">
+                {/* Icon Circle */}
+                <div className="w-20 h-20 bg-white rounded-3xl flex items-center justify-center text-[#DB005B] shadow-xl shadow-pink-100/50 border border-pink-50 mb-8 group-hover:scale-110 group-hover:rotate-3 transition-all duration-500">
+                  {f.icon}
+                </div>
+                
+                <h3 className="text-2xl font-black text-black mb-4 tracking-tight">
+                  {f.title}
+                </h3>
+                
+                <p className="text-gray-500 font-medium leading-relaxed max-w-xs">
+                  {f.desc}
+                </p>
+                
+                {/* Decorative underline */}
+                <div className="mt-6 w-12 h-1 bg-[#DB005B]/10 rounded-full group-hover:w-24 group-hover:bg-[#DB005B] transition-all duration-500" />
               </div>
-
-              <h3 className="mt-5 text-lg sm:text-xl font-extrabold text-[#DB005B]">
-                {tab.title}
-              </h3>
-
-              <p className="mt-2 text-gray-600 text-sm leading-relaxed">
-                {tab.description}
-              </p>
             </div>
           ))}
         </div>

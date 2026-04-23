@@ -1,42 +1,47 @@
 "use client";
 
 import Link from "next/link";
+import { useState, useEffect } from "react";
 
 interface Category {
-  id: number;
+  _id: string;
   name: string;
   image: string;
-  value: "skincare" | "makeup" | "haircare" | "fragrance";
+  value: string;
 }
 
-const categories: Category[] = [
-  {
-    id: 1,
-    name: "Skincare",
-    image: "/aesthetic-skincare-product-display-winter-decoration-minimalist-style-403345045.webp",
-    value: "skincare",
-  },
-  {
-    id: 2,
-    name: "Makeup",
-    image: "/high-angle-view-makeup-products-black-surface_23-2147899437.avif",
-    value: "makeup",
-  },
-  {
-    id: 3,
-    name: "Haircare",
-    image: "/abb43164f876262d520af647338f054d.jpg",
-    value: "haircare",
-  },
-  {
-    id: 4,
-    name: "Fragrance",
-    image: "/BEFORE-24_1633974089.png",
-    value: "fragrance",
-  },
-];
-
 export default function Categories() {
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch("/api/categories")
+      .then(res => res.json())
+      .then(data => {
+        setCategories(data);
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+  }, []);
+
+  if (loading) {
+    return (
+      <section className="py-16 sm:py-20 bg-[#FCF8F8]">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+          <div className="text-center mb-10">
+             <div className="h-10 w-64 bg-gray-200 animate-pulse mx-auto rounded-xl" />
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            {[1, 2, 3, 4].map((i) => (
+              <div key={i} className="aspect-square bg-gray-200 animate-pulse rounded-2xl" />
+            ))}
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  if (categories.length === 0) return null;
   return (
     <section className="py-16 sm:py-20 bg-[#FCF8F8]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
@@ -56,10 +61,10 @@ export default function Categories() {
 
         {/* Grid */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-5 sm:gap-6 mb-12 sm:mb-16">
-          {categories.map((category) => (
-            <Link
-              key={category.id}
-              href={`/category?cat=${category.value}`}
+            {categories.slice(0, 4).map((category) => (
+              <Link
+                key={category._id}
+                href={`/category?cat=${category.value}`}
               className="group bg-white rounded-2xl overflow-hidden border border-transparent hover:border-pink-100 shadow-sm hover:shadow-xl transition-all duration-300 cursor-pointer"
             >
               {/* Image */}

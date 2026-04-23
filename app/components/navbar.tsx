@@ -28,7 +28,7 @@ export default function Navbar() {
         <div className="mx-auto max-w-7xl px-4">
           <div className="mt-3 mb-2 rounded-2xl border border-pink-200 bg-white/80 backdrop-blur-md shadow-sm">
             <div className="flex h-16 items-center justify-between px-4">
-              
+
               {/* Logo */}
               <div
                 className="flex items-center cursor-pointer gap-3"

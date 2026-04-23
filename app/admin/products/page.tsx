@@ -25,11 +25,23 @@ export default function ManageProducts() {
     description: "",
   });
 
-  const categories = ["SkinCare", "Makeup", "HairCare", "Fragrance"];
+  const [categories, setCategories] = useState<any[]>([]);
 
   useEffect(() => {
     fetchProducts();
+    fetchCategories();
   }, []);
+
+  const fetchCategories = async () => {
+    const res = await fetch("/api/categories");
+    if (res.ok) {
+      const data = await res.json();
+      setCategories(data);
+      if (data.length > 0 && !formData.category) {
+        setFormData(prev => ({ ...prev, category: data[0].name }));
+      }
+    }
+  };
 
   const fetchProducts = async () => {
     const user = localStorage.getItem("admin_user");
@@ -333,7 +345,7 @@ export default function ManageProducts() {
                   onChange={(e) => setFormData({...formData, category: e.target.value})}
                   className="w-full px-6 py-4 bg-gray-50 border-2 border-transparent rounded-2xl outline-none focus:bg-white focus:border-purple-200 transition-all text-gray-900 font-bold appearance-none cursor-pointer"
                 >
-                  {categories.map(c => <option key={c} value={c}>{c}</option>)}
+                  {categories.map(c => <option key={c._id} value={c.name}>{c.name}</option>)}
                 </select>
               </div>
 

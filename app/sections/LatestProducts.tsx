@@ -3,10 +3,12 @@
 import { useRouter } from "next/navigation";
 import ProductCard from "@/app/components/productcard";
 import { useEffect, useState } from "react";
+import { ProductSkeleton } from "@/app/components/Skeleton";
 
 export default function LatestProducts() {
   const router = useRouter();
   const [products, setProducts] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetch("/api/products")
@@ -14,8 +16,12 @@ export default function LatestProducts() {
       .then(data => {
         if (Array.isArray(data)) setProducts(data);
         else console.error("API returned non-array data:", data);
+        setLoading(false);
       })
-      .catch(err => console.error(err));
+      .catch(err => {
+        console.error(err);
+        setLoading(false);
+      });
   }, []);
 
   // Latest products = last 4 added in array
@@ -42,7 +48,11 @@ export default function LatestProducts() {
         {/* Products Grid */}
      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-5 sm:gap-6">
 
-          {latestProducts.map((product) => (
+          {loading ? (
+            [...Array(4)].map((_, i) => (
+              <ProductSkeleton key={i} />
+            ))
+          ) : latestProducts.map((product) => (
             <ProductCard key={product.id} product={product} />
           ))}
         </div>
