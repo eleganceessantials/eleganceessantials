@@ -278,13 +278,18 @@ export default function ManageCategories() {
 
                   <td className="p-6">
                     <div className="flex items-center space-x-4">
-                      <div className="relative w-14 h-14 rounded-2xl overflow-hidden border border-purple-100 shadow-sm bg-gray-50 shrink-0">
-                        <img
-                          src={category.image}
-                          alt={category.name}
-                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                        />
-                      </div>
+                      <div className="relative w-14 h-14 rounded-2xl overflow-hidden border border-purple-100 shadow-sm bg-gray-50 shrink-0 flex items-center justify-center">
+  {category.image ? (
+    <img
+      src={category.image}
+      alt={category.name || "Category image"}
+      loading="lazy"
+      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+    />
+  ) : (
+    <span className="text-2xl opacity-40">🖼️</span>
+  )}
+</div>
                       <span className="font-bold text-gray-900">
                         {category.name}
                       </span>
@@ -384,13 +389,18 @@ export default function ManageCategories() {
                   onChange={() => toggleSelect(category._id)}
                 />
 
-                <div className="relative w-16 h-16 rounded-2xl overflow-hidden border border-purple-100 bg-gray-50 shrink-0">
-                  <img
-                    src={category.image}
-                    alt={category.name}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
+              <div className="relative w-16 h-16 rounded-2xl overflow-hidden border border-purple-100 bg-gray-50 shrink-0 flex items-center justify-center">
+  {category.image ? (
+    <img
+      src={category.image}
+      alt={category.name || "Category image"}
+      loading="lazy"
+      className="w-full h-full object-cover"
+    />
+  ) : (
+    <span className="text-2xl opacity-40">🖼️</span>
+  )}
+</div>
 
                 <div className="min-w-0 flex-1">
                   <h3 className="font-black text-gray-900 text-sm leading-snug">

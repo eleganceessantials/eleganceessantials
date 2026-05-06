@@ -13,12 +13,19 @@ export default function ProductCard({ product }: { product: Product }) {
       <div className="bg-white rounded-2xl p-4 shadow-sm hover:shadow-xl transition-all duration-300 relative border border-transparent hover:border-pink-100 hover:-translate-y-1">
         {/* Image */}
         <div className="w-full h-56 relative rounded-xl overflow-hidden mb-4 bg-gray-100">
-          <Image
-            src={product.image}
-            alt={product.name}
-            fill
-            className="object-cover transition-transform duration-500 group-hover:scale-110"
-          />
+          {product.image ? (
+            <Image
+              src={product.image}
+              alt={product.name || "Product image"}
+              fill
+              sizes="(max-width: 768px) 100vw, 33vw"
+              className="object-cover transition-transform duration-500 group-hover:scale-110"
+            />
+          ) : (
+            <div className="flex h-full w-full items-center justify-center bg-gray-100 text-4xl opacity-40">
+              🖼️
+            </div>
+          )}
         </div>
 
         {/* Product Name */}
@@ -36,26 +43,35 @@ export default function ProductCard({ product }: { product: Product }) {
           <div className="flex items-center space-x-2">
             {product.discountPrice ? (
               <>
-                <span className="font-bold text-lg text-pink-600">Rs. {product.discountPrice}</span>
-                <span className="text-gray-400 line-through text-sm">Rs. {product.price}</span>
+                <span className="font-bold text-lg text-pink-600">
+                  Rs. {product.discountPrice}
+                </span>
+                <span className="text-gray-400 line-through text-sm">
+                  Rs. {product.price}
+                </span>
               </>
             ) : (
-              <span className="font-bold text-lg text-black">Rs. {product.price}</span>
+              <span className="font-bold text-lg text-black">
+                Rs. {product.price}
+              </span>
             )}
           </div>
 
           <div className="flex justify-between items-center w-full">
-            <span className="text-xs font-medium text-green-600 bg-green-50 px-2 py-0.5 rounded">Free Delivery</span>
+            <span className="text-xs font-medium text-green-600 bg-green-50 px-2 py-0.5 rounded">
+              Free Delivery
+            </span>
 
             <button
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
+
                 addToCart({
                   id: (product._id || product.id) as string,
                   name: product.name,
                   price: product.discountPrice || product.price,
-                  image: product.image,
+                  image: product.image || "",
                   quantity: 1,
                 });
               }}

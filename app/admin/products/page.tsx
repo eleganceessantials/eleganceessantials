@@ -10,11 +10,23 @@ declare global {
   }
 }
 
+const PRODUCT_LIMIT = 20;
+
 export default function ManageProducts() {
   const [products, setProducts] = useState<any[]>([]);
+  const [totalProducts, setTotalProducts] = useState(0);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(false);
+  const [isProductsLoading, setIsProductsLoading] = useState(true);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+
+  const [searchTerm, setSearchTerm] = useState("");
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<any>(null);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
+
   const [formData, setFormData] = useState({
     name: "",
     slug: "",
@@ -28,9 +40,25 @@ export default function ManageProducts() {
   const [categories, setCategories] = useState<any[]>([]);
 
   useEffect(() => {
-    fetchProducts();
     fetchCategories();
   }, []);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchTerm(searchTerm.trim());
+    }, 400);
+
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
+
+  useEffect(() => {
+    setSelectedIds([]);
+    fetchProducts({
+      pageNumber: 1,
+      search: debouncedSearchTerm,
+      append: false,
+    });
+  }, [debouncedSearchTerm]);
 
   const duplicateMap = useMemo(() => {
     const map: Record<string, number> = {};
@@ -59,6 +87,16 @@ export default function ManageProducts() {
     return duplicateMap[key] || 0;
   };
 
+  const getAdminHeaders = () => {
+    const user = localStorage.getItem("admin_user");
+    const pass = localStorage.getItem("admin_pass");
+
+    return {
+      "x-admin-username": user || "",
+      "x-admin-password": pass || "",
+    };
+  };
+
   const fetchCategories = async () => {
     try {
       const res = await fetch("/api/categories");
@@ -76,33 +114,88 @@ export default function ManageProducts() {
     }
   };
 
-  const fetchProducts = async () => {
+  const fetchProducts = async ({
+    pageNumber = 1,
+    search = debouncedSearchTerm,
+    append = false,
+  }: {
+    pageNumber?: number;
+    search?: string;
+    append?: boolean;
+  } = {}) => {
     try {
-      const user = localStorage.getItem("admin_user");
-      const pass = localStorage.getItem("admin_pass");
+      if (append) {
+        setIsLoadingMore(true);
+      } else {
+        setIsProductsLoading(true);
+      }
 
-      const res = await fetch("/api/admin/products", {
-        headers: {
-          "x-admin-username": user || "",
-          "x-admin-password": pass || "",
-        },
+      const params = new URLSearchParams({
+        page: String(pageNumber),
+        limit: String(PRODUCT_LIMIT),
       });
 
-      if (!res.ok) return;
+      if (search) {
+        params.set("search", search);
+      }
+
+      const res = await fetch(`/api/admin/products?${params.toString()}`, {
+        headers: getAdminHeaders(),
+        cache: "no-store",
+      });
+
+      if (!res.ok) {
+        setProducts([]);
+        setTotalProducts(0);
+        setHasMore(false);
+        return;
+      }
 
       const data = await res.json();
-      setProducts(Array.isArray(data) ? data : []);
+
+      const newProducts = Array.isArray(data)
+        ? data
+        : Array.isArray(data.products)
+        ? data.products
+        : [];
+
+      setProducts((prev) => (append ? [...prev, ...newProducts] : newProducts));
+      setTotalProducts(
+        typeof data.total === "number" ? data.total : newProducts.length
+      );
+      setHasMore(Boolean(data.hasMore));
+      setPage(pageNumber);
     } catch (error) {
       console.error("Failed to fetch products:", error);
-      setProducts([]);
+      if (!append) {
+        setProducts([]);
+        setTotalProducts(0);
+        setHasMore(false);
+      }
+    } finally {
+      setIsProductsLoading(false);
+      setIsLoadingMore(false);
     }
+  };
+
+  const refreshCurrentProducts = () => {
+    fetchProducts({
+      pageNumber: 1,
+      search: debouncedSearchTerm,
+      append: false,
+    });
+  };
+
+  const handleLoadMore = () => {
+    fetchProducts({
+      pageNumber: page + 1,
+      search: debouncedSearchTerm,
+      append: true,
+    });
   };
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    const user = localStorage.getItem("admin_user");
-    const pass = localStorage.getItem("admin_pass");
 
     const payload = {
       ...formData,
@@ -122,8 +215,7 @@ export default function ManageProducts() {
       method,
       headers: {
         "Content-Type": "application/json",
-        "x-admin-username": user || "",
-        "x-admin-password": pass || "",
+        ...getAdminHeaders(),
       },
       body: JSON.stringify(body),
     });
@@ -136,11 +228,11 @@ export default function ManageProducts() {
         slug: "",
         price: 0,
         discountPrice: "",
-        category: "SkinCare",
+        category: categories[0]?.name || "SkinCare",
         image: "",
         description: "",
       });
-      fetchProducts();
+      refreshCurrentProducts();
     } else {
       alert("Failed to save product.");
     }
@@ -149,55 +241,50 @@ export default function ManageProducts() {
   const handleDelete = async (id: string) => {
     if (!confirm("Are you sure?")) return;
 
-    const user = localStorage.getItem("admin_user");
-    const pass = localStorage.getItem("admin_pass");
-
     const res = await fetch("/api/admin/products", {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",
-        "x-admin-username": user || "",
-        "x-admin-password": pass || "",
+        ...getAdminHeaders(),
       },
       body: JSON.stringify({ ids: [id] }),
     });
 
-    if (res.ok) fetchProducts();
+    if (res.ok) {
+      setSelectedIds((prev) => prev.filter((selectedId) => selectedId !== id));
+      refreshCurrentProducts();
+    }
   };
 
   const handleBulkDelete = async () => {
     if (selectedIds.length === 0) return;
     if (!confirm(`Delete ${selectedIds.length} products?`)) return;
 
-    const user = localStorage.getItem("admin_user");
-    const pass = localStorage.getItem("admin_pass");
-
     const res = await fetch("/api/admin/products", {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",
-        "x-admin-username": user || "",
-        "x-admin-password": pass || "",
+        ...getAdminHeaders(),
       },
       body: JSON.stringify({ ids: selectedIds }),
     });
 
     if (res.ok) {
       setSelectedIds([]);
-      fetchProducts();
+      refreshCurrentProducts();
     }
   };
 
   const openEdit = (product: any) => {
     setEditingProduct(product);
     setFormData({
-      name: product.name,
-      slug: product.slug,
-      price: product.price,
+      name: product.name || "",
+      slug: product.slug || "",
+      price: product.price || 0,
       discountPrice: product.discountPrice || "",
-      category: product.category,
-      image: product.image,
-      description: product.description,
+      category: product.category || categories[0]?.name || "SkinCare",
+      image: product.image || "",
+      description: product.description || "",
     });
     setIsModalOpen(true);
   };
@@ -206,6 +293,14 @@ export default function ManageProducts() {
     setSelectedIds((prev) =>
       prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
     );
+  };
+
+  const handleSelectAllVisible = (checked: boolean) => {
+    if (checked) {
+      setSelectedIds(products.map((p) => p._id));
+    } else {
+      setSelectedIds([]);
+    }
   };
 
   const handleCloudinaryUpload = () => {
@@ -258,12 +353,16 @@ export default function ManageProducts() {
             Manage Inventory
           </h1>
           <p className="text-gray-500 font-medium mt-1 text-sm sm:text-base">
-            Add, update, or remove products from your catalog.
+            Add, update, search, or remove products from your catalog.
           </p>
 
           <div className="flex flex-wrap items-center gap-2 mt-4">
             <span className="px-3 py-1.5 rounded-full bg-purple-50 text-purple-700 text-xs font-black">
-              Total: {products.length}
+              Showing: {products.length}
+            </span>
+
+            <span className="px-3 py-1.5 rounded-full bg-indigo-50 text-indigo-700 text-xs font-black">
+              Total: {totalProducts}
             </span>
 
             {totalDuplicateGroups > 0 && (
@@ -301,6 +400,48 @@ export default function ManageProducts() {
         </div>
       </div>
 
+      <div className="bg-white rounded-[2rem] border border-purple-50 shadow-sm p-4 sm:p-5 mb-6">
+        <div className="flex flex-col md:flex-row gap-3 md:items-center md:justify-between">
+          <div className="relative w-full">
+            <span className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400">
+              🔍
+            </span>
+
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder="Search by name, slug, category, price..."
+              className="w-full pl-12 pr-12 py-4 rounded-2xl bg-gray-50 border-2 border-transparent outline-none focus:bg-white focus:border-purple-200 transition-all text-gray-900 font-bold placeholder:text-gray-400"
+            />
+
+            {searchTerm && (
+              <button
+                onClick={() => setSearchTerm("")}
+                className="absolute right-4 top-1/2 -translate-y-1/2 w-8 h-8 rounded-xl bg-white text-gray-400 hover:text-rose-500 hover:bg-rose-50 transition-all font-black cursor-pointer"
+              >
+                ✕
+              </button>
+            )}
+          </div>
+
+          <button
+            onClick={refreshCurrentProducts}
+            disabled={isProductsLoading}
+            className="w-full md:w-auto px-6 py-4 rounded-2xl bg-purple-50 text-purple-700 font-black hover:bg-purple-100 transition-all cursor-pointer disabled:opacity-60"
+          >
+            {isProductsLoading ? "Loading..." : "Refresh"}
+          </button>
+        </div>
+
+        {debouncedSearchTerm && (
+          <p className="text-xs text-gray-500 font-bold mt-3">
+            Search results for{" "}
+            <span className="text-purple-700">"{debouncedSearchTerm}"</span>
+          </p>
+        )}
+      </div>
+
       {/* Desktop Table */}
       <div className="hidden md:block bg-white rounded-[2.5rem] shadow-sm border border-purple-50 overflow-hidden">
         <div className="overflow-x-auto">
@@ -311,13 +452,7 @@ export default function ManageProducts() {
                   <input
                     type="checkbox"
                     className="w-5 h-5 rounded border-gray-300 text-purple-600 focus:ring-purple-500"
-                    onChange={(e) => {
-                      if (e.target.checked) {
-                        setSelectedIds(products.map((p) => p._id));
-                      } else {
-                        setSelectedIds([]);
-                      }
-                    }}
+                    onChange={(e) => handleSelectAllVisible(e.target.checked)}
                     checked={
                       selectedIds.length === products.length &&
                       products.length > 0
@@ -340,96 +475,122 @@ export default function ManageProducts() {
             </thead>
 
             <tbody className="divide-y divide-purple-50">
-              {products.map((product) => {
-                const duplicateCount = getDuplicateCount(product.name);
-                const isDuplicate = duplicateCount > 1;
+              {isProductsLoading ? (
+                <tr>
+                  <td colSpan={5} className="p-12 text-center">
+                    <div className="text-gray-500 font-black">
+                      Loading products...
+                    </div>
+                  </td>
+                </tr>
+              ) : products.length === 0 ? (
+                <tr>
+                  <td colSpan={5} className="p-12 text-center">
+                    <div className="text-gray-900 font-black">
+                      No products found
+                    </div>
+                    <p className="text-gray-400 text-sm font-medium mt-1">
+                      Try another search or add a new product.
+                    </p>
+                  </td>
+                </tr>
+              ) : (
+                products.map((product) => {
+                  const duplicateCount = getDuplicateCount(product.name);
+                  const isDuplicate = duplicateCount > 1;
 
-                return (
-                  <tr
-                    key={product._id}
-                    className="hover:bg-purple-50/20 transition-colors group"
-                  >
-                    <td className="p-6">
-                      <input
-                        type="checkbox"
-                        className="w-5 h-5 rounded border-gray-300 text-purple-600 focus:ring-purple-500"
-                        checked={selectedIds.includes(product._id)}
-                        onChange={() => toggleSelect(product._id)}
-                      />
-                    </td>
+                  return (
+                    <tr
+                      key={product._id}
+                      className="hover:bg-purple-50/20 transition-colors group"
+                    >
+                      <td className="p-6">
+                        <input
+                          type="checkbox"
+                          className="w-5 h-5 rounded border-gray-300 text-purple-600 focus:ring-purple-500"
+                          checked={selectedIds.includes(product._id)}
+                          onChange={() => toggleSelect(product._id)}
+                        />
+                      </td>
 
-                    <td className="p-6">
-                      <div className="flex items-center space-x-4">
-                        <div className="relative w-14 h-14 rounded-2xl overflow-hidden border border-purple-100 shadow-sm bg-gray-50 shrink-0">
-                          <img
-                            src={product.image}
-                            alt={product.name}
-                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                          />
-                        </div>
-
-                        <div className="flex flex-col min-w-0">
-                          <div className="flex flex-wrap items-center gap-2">
-                            <span className="font-bold text-gray-900">
-                              {product.name}
-                            </span>
-
-                            {isDuplicate && (
-                              <span className="px-2.5 py-1 rounded-full bg-amber-50 text-amber-700 text-[10px] font-black uppercase tracking-wide">
-                                Duplicate x{duplicateCount}
-                              </span>
+                      <td className="p-6">
+                        <div className="flex items-center space-x-4">
+                          <div className="relative w-14 h-14 rounded-2xl overflow-hidden border border-purple-100 shadow-sm bg-gray-50 shrink-0 flex items-center justify-center">
+                            {product.image ? (
+                              <img
+                                src={product.image}
+                                alt={product.name || "Product image"}
+                                loading="lazy"
+                                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                              />
+                            ) : (
+                              <span className="text-2xl opacity-40">🖼️</span>
                             )}
                           </div>
 
-                          <span className="text-xs text-gray-400 font-medium break-all">
-                            /{product.slug}
-                          </span>
+                          <div className="flex flex-col min-w-0">
+                            <div className="flex flex-wrap items-center gap-2">
+                              <span className="font-bold text-gray-900">
+                                {product.name}
+                              </span>
+
+                              {isDuplicate && (
+                                <span className="px-2.5 py-1 rounded-full bg-amber-50 text-amber-700 text-[10px] font-black uppercase tracking-wide">
+                                  Duplicate x{duplicateCount}
+                                </span>
+                              )}
+                            </div>
+
+                            <span className="text-xs text-gray-400 font-medium break-all">
+                              /{product.slug}
+                            </span>
+                          </div>
                         </div>
-                      </div>
-                    </td>
+                      </td>
 
-                    <td className="p-6">
-                      <span className="px-4 py-1.5 bg-indigo-50 text-indigo-600 rounded-full text-[11px] font-black uppercase tracking-tight">
-                        {product.category}
-                      </span>
-                    </td>
+                      <td className="p-6">
+                        <span className="px-4 py-1.5 bg-indigo-50 text-indigo-600 rounded-full text-[11px] font-black uppercase tracking-tight">
+                          {product.category}
+                        </span>
+                      </td>
 
-                    <td className="p-6">
-                      {product.discountPrice ? (
-                        <div className="flex flex-col">
-                          <span className="text-purple-600 font-black text-base">
-                            Rs. {product.discountPrice}
-                          </span>
-                          <span className="text-gray-300 line-through text-[11px] font-bold italic">
+                      <td className="p-6">
+                        {product.discountPrice ? (
+                          <div className="flex flex-col">
+                            <span className="text-purple-600 font-black text-base">
+                              Rs. {product.discountPrice}
+                            </span>
+                            <span className="text-gray-300 line-through text-[11px] font-bold italic">
+                              Rs. {product.price}
+                            </span>
+                          </div>
+                        ) : (
+                          <span className="text-gray-900 font-bold text-base">
                             Rs. {product.price}
                           </span>
-                        </div>
-                      ) : (
-                        <span className="text-gray-900 font-bold text-base">
-                          Rs. {product.price}
-                        </span>
-                      )}
-                    </td>
+                        )}
+                      </td>
 
-                    <td className="p-6">
-                      <div className="flex items-center space-x-4">
-                        <button
-                          onClick={() => openEdit(product)}
-                          className="p-2 text-indigo-500 hover:bg-indigo-50 rounded-xl transition-colors font-bold text-sm cursor-pointer"
-                        >
-                          Edit
-                        </button>
-                        <button
-                          onClick={() => handleDelete(product._id)}
-                          className="p-2 text-rose-500 hover:bg-rose-50 rounded-xl transition-colors font-bold text-sm cursor-pointer"
-                        >
-                          Delete
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
+                      <td className="p-6">
+                        <div className="flex items-center space-x-4">
+                          <button
+                            onClick={() => openEdit(product)}
+                            className="p-2 text-indigo-500 hover:bg-indigo-50 rounded-xl transition-colors font-bold text-sm cursor-pointer"
+                          >
+                            Edit
+                          </button>
+                          <button
+                            onClick={() => handleDelete(product._id)}
+                            className="p-2 text-rose-500 hover:bg-rose-50 rounded-xl transition-colors font-bold text-sm cursor-pointer"
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
             </tbody>
           </table>
         </div>
@@ -440,9 +601,7 @@ export default function ManageProducts() {
         <div className="bg-white rounded-[2rem] border border-purple-50 shadow-sm p-4">
           <div className="flex items-center justify-between gap-3">
             <div>
-              <p className="text-sm font-black text-gray-900">
-                Product List
-              </p>
+              <p className="text-sm font-black text-gray-900">Product List</p>
               <p className="text-xs text-gray-500 mt-1">
                 Tap products to manage quickly
               </p>
@@ -452,13 +611,7 @@ export default function ManageProducts() {
               <input
                 type="checkbox"
                 className="w-5 h-5 rounded border-gray-300 text-purple-600 focus:ring-purple-500"
-                onChange={(e) => {
-                  if (e.target.checked) {
-                    setSelectedIds(products.map((p) => p._id));
-                  } else {
-                    setSelectedIds([]);
-                  }
-                }}
+                onChange={(e) => handleSelectAllVisible(e.target.checked)}
                 checked={
                   selectedIds.length === products.length && products.length > 0
                 }
@@ -467,105 +620,141 @@ export default function ManageProducts() {
           </div>
         </div>
 
-        {products.map((product) => {
-          const duplicateCount = getDuplicateCount(product.name);
-          const isDuplicate = duplicateCount > 1;
+        {isProductsLoading ? (
+          <div className="bg-white rounded-[2rem] border border-purple-50 shadow-sm p-8 text-center">
+            <p className="text-gray-500 font-black">Loading products...</p>
+          </div>
+        ) : products.length === 0 ? (
+          <div className="bg-white rounded-[2rem] border border-purple-50 shadow-sm p-8 text-center">
+            <p className="text-gray-900 font-black">No products found</p>
+            <p className="text-gray-400 text-sm font-medium mt-1">
+              Try another search or add a new product.
+            </p>
+          </div>
+        ) : (
+          products.map((product) => {
+            const duplicateCount = getDuplicateCount(product.name);
+            const isDuplicate = duplicateCount > 1;
 
-          return (
-            <div
-              key={product._id}
-              className="bg-white rounded-[2rem] border border-purple-50 shadow-sm overflow-hidden"
-            >
-              <div className="p-4 border-b border-purple-50">
-                <div className="flex items-start gap-3">
-                  <input
-                    type="checkbox"
-                    className="mt-1 w-5 h-5 rounded border-gray-300 text-purple-600 focus:ring-purple-500 shrink-0"
-                    checked={selectedIds.includes(product._id)}
-                    onChange={() => toggleSelect(product._id)}
-                  />
-
-                  <div className="relative w-16 h-16 rounded-2xl overflow-hidden border border-purple-100 bg-gray-50 shrink-0">
-                    <img
-                      src={product.image}
-                      alt={product.name}
-                      className="w-full h-full object-cover"
+            return (
+              <div
+                key={product._id}
+                className="bg-white rounded-[2rem] border border-purple-50 shadow-sm overflow-hidden"
+              >
+                <div className="p-4 border-b border-purple-50">
+                  <div className="flex items-start gap-3">
+                    <input
+                      type="checkbox"
+                      className="mt-1 w-5 h-5 rounded border-gray-300 text-purple-600 focus:ring-purple-500 shrink-0"
+                      checked={selectedIds.includes(product._id)}
+                      onChange={() => toggleSelect(product._id)}
                     />
-                  </div>
 
-                  <div className="min-w-0 flex-1">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <h3 className="font-black text-gray-900 text-sm leading-snug">
-                        {product.name}
-                      </h3>
-
-                      {isDuplicate && (
-                        <span className="px-2.5 py-1 rounded-full bg-amber-50 text-amber-700 text-[10px] font-black uppercase tracking-wide">
-                          Duplicate x{duplicateCount}
-                        </span>
+                    <div className="relative w-16 h-16 rounded-2xl overflow-hidden border border-purple-100 bg-gray-50 shrink-0 flex items-center justify-center">
+                      {product.image ? (
+                        <img
+                          src={product.image}
+                          alt={product.name || "Product image"}
+                          loading="lazy"
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <span className="text-2xl opacity-40">🖼️</span>
                       )}
                     </div>
 
-                    <p className="text-xs text-gray-400 font-medium break-all mt-1">
-                      /{product.slug}
-                    </p>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <h3 className="font-black text-gray-900 text-sm leading-snug">
+                          {product.name}
+                        </h3>
+
+                        {isDuplicate && (
+                          <span className="px-2.5 py-1 rounded-full bg-amber-50 text-amber-700 text-[10px] font-black uppercase tracking-wide">
+                            Duplicate x{duplicateCount}
+                          </span>
+                        )}
+                      </div>
+
+                      <p className="text-xs text-gray-400 font-medium break-all mt-1">
+                        /{product.slug}
+                      </p>
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              <div className="p-4 space-y-3">
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="bg-gray-50 rounded-2xl p-3">
-                    <p className="text-[10px] font-black uppercase tracking-wider text-gray-400 mb-1">
-                      Category
-                    </p>
-                    <p className="text-sm font-bold text-indigo-600 break-words">
-                      {product.category}
-                    </p>
-                  </div>
+                <div className="p-4 space-y-3">
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="bg-gray-50 rounded-2xl p-3">
+                      <p className="text-[10px] font-black uppercase tracking-wider text-gray-400 mb-1">
+                        Category
+                      </p>
+                      <p className="text-sm font-bold text-indigo-600 break-words">
+                        {product.category}
+                      </p>
+                    </div>
 
-                  <div className="bg-gray-50 rounded-2xl p-3">
-                    <p className="text-[10px] font-black uppercase tracking-wider text-gray-400 mb-1">
-                      Pricing
-                    </p>
+                    <div className="bg-gray-50 rounded-2xl p-3">
+                      <p className="text-[10px] font-black uppercase tracking-wider text-gray-400 mb-1">
+                        Pricing
+                      </p>
 
-                    {product.discountPrice ? (
-                      <div className="flex flex-col">
-                        <span className="text-purple-600 font-black text-sm">
-                          Rs. {product.discountPrice}
-                        </span>
-                        <span className="text-gray-300 line-through text-[11px] font-bold italic">
+                      {product.discountPrice ? (
+                        <div className="flex flex-col">
+                          <span className="text-purple-600 font-black text-sm">
+                            Rs. {product.discountPrice}
+                          </span>
+                          <span className="text-gray-300 line-through text-[11px] font-bold italic">
+                            Rs. {product.price}
+                          </span>
+                        </div>
+                      ) : (
+                        <span className="text-gray-900 font-bold text-sm">
                           Rs. {product.price}
                         </span>
-                      </div>
-                    ) : (
-                      <span className="text-gray-900 font-bold text-sm">
-                        Rs. {product.price}
-                      </span>
-                    )}
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-3 pt-1">
+                    <button
+                      onClick={() => openEdit(product)}
+                      className="flex-1 py-3 rounded-2xl bg-indigo-50 text-indigo-600 font-black text-sm hover:bg-indigo-100 transition-all cursor-pointer"
+                    >
+                      Edit
+                    </button>
+
+                    <button
+                      onClick={() => handleDelete(product._id)}
+                      className="flex-1 py-3 rounded-2xl bg-rose-50 text-rose-600 font-black text-sm hover:bg-rose-100 transition-all cursor-pointer"
+                    >
+                      Delete
+                    </button>
                   </div>
                 </div>
-
-                <div className="flex items-center gap-3 pt-1">
-                  <button
-                    onClick={() => openEdit(product)}
-                    className="flex-1 py-3 rounded-2xl bg-indigo-50 text-indigo-600 font-black text-sm hover:bg-indigo-100 transition-all cursor-pointer"
-                  >
-                    Edit
-                  </button>
-
-                  <button
-                    onClick={() => handleDelete(product._id)}
-                    className="flex-1 py-3 rounded-2xl bg-rose-50 text-rose-600 font-black text-sm hover:bg-rose-100 transition-all cursor-pointer"
-                  >
-                    Delete
-                  </button>
-                </div>
               </div>
-            </div>
-          );
-        })}
+            );
+          })
+        )}
       </div>
+
+      {hasMore && !isProductsLoading && (
+        <div className="flex justify-center mt-8">
+          <button
+            onClick={handleLoadMore}
+            disabled={isLoadingMore}
+            className="px-8 py-4 rounded-2xl bg-gray-900 text-white font-black hover:bg-purple-700 transition-all disabled:opacity-60 cursor-pointer"
+          >
+            {isLoadingMore ? "Loading..." : "Load More Products"}
+          </button>
+        </div>
+      )}
+
+      {!hasMore && products.length > 0 && !isProductsLoading && (
+        <p className="text-center text-xs text-gray-400 font-bold mt-8">
+          You have reached the end.
+        </p>
+      )}
 
       {/* Modal */}
       {isModalOpen && (
@@ -718,7 +907,9 @@ export default function ManageProducts() {
                     >
                       <span>☁️</span>
                       <span>
-                        {formData.image ? "Change Image" : "Upload to Cloudinary"}
+                        {formData.image
+                          ? "Change Image"
+                          : "Upload to Cloudinary"}
                       </span>
                     </button>
 
