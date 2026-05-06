@@ -10,6 +10,10 @@ export default function AdminLayout({
   children: React.ReactNode;
 }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
+  const [loginError, setLoginError] = useState("");
+
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -18,10 +22,48 @@ export default function AdminLayout({
   const pathname = usePathname();
 
   useEffect(() => {
-    const auth = localStorage.getItem("admin_auth");
-    if (auth) {
-      setIsAuthenticated(true);
-    }
+    const verifySavedLogin = async () => {
+      try {
+        const savedUser = localStorage.getItem("admin_user");
+        const savedPass = localStorage.getItem("admin_pass");
+        const savedAuth = localStorage.getItem("admin_auth");
+
+        if (!savedAuth || !savedUser || !savedPass) {
+          setIsAuthenticated(false);
+          return;
+        }
+
+        const res = await fetch("/api/admin/login", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            username: savedUser,
+            password: savedPass,
+          }),
+        });
+
+        if (res.ok) {
+          setIsAuthenticated(true);
+        } else {
+          localStorage.removeItem("admin_auth");
+          localStorage.removeItem("admin_user");
+          localStorage.removeItem("admin_pass");
+          setIsAuthenticated(false);
+        }
+      } catch (error) {
+        console.error("Auth check failed:", error);
+        localStorage.removeItem("admin_auth");
+        localStorage.removeItem("admin_user");
+        localStorage.removeItem("admin_pass");
+        setIsAuthenticated(false);
+      } finally {
+        setIsCheckingAuth(false);
+      }
+    };
+
+    verifySavedLogin();
   }, []);
 
   useEffect(() => {
@@ -40,12 +82,52 @@ export default function AdminLayout({
     };
   }, [sidebarOpen]);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    localStorage.setItem("admin_user", username);
-    localStorage.setItem("admin_pass", password);
-    localStorage.setItem("admin_auth", "true");
-    setIsAuthenticated(true);
+
+    try {
+      setIsLoggingIn(true);
+      setLoginError("");
+
+      const cleanUsername = username.trim();
+      const cleanPassword = password;
+
+      const res = await fetch("/api/admin/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          username: cleanUsername,
+          password: cleanPassword,
+        }),
+      });
+
+      const data = await res.json().catch(() => null);
+
+      if (!res.ok || !data?.success) {
+        setLoginError(data?.error || "Invalid admin credentials.");
+        localStorage.removeItem("admin_auth");
+        localStorage.removeItem("admin_user");
+        localStorage.removeItem("admin_pass");
+        setIsAuthenticated(false);
+        return;
+      }
+
+      localStorage.setItem("admin_user", cleanUsername);
+      localStorage.setItem("admin_pass", cleanPassword);
+      localStorage.setItem("admin_auth", "true");
+
+      setIsAuthenticated(true);
+      setPassword("");
+      setLoginError("");
+    } catch (error) {
+      console.error("Login failed:", error);
+      setLoginError("Login failed. Please try again.");
+      setIsAuthenticated(false);
+    } finally {
+      setIsLoggingIn(false);
+    }
   };
 
   const handleLogout = () => {
@@ -54,10 +136,25 @@ export default function AdminLayout({
     localStorage.removeItem("admin_pass");
     setIsAuthenticated(false);
     setSidebarOpen(false);
+    setUsername("");
+    setPassword("");
     router.push("/admin");
   };
 
   const isActive = (href: string) => pathname === href;
+
+  if (isCheckingAuth) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#f0f2f5] p-6">
+        <div className="flex flex-col items-center">
+          <div className="w-14 h-14 border-4 border-purple-100 border-t-purple-600 rounded-full animate-spin" />
+          <p className="mt-5 text-xs font-black tracking-[0.25em] uppercase text-purple-400">
+            Checking admin access...
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   if (!isAuthenticated) {
     return (
@@ -75,6 +172,7 @@ export default function AdminLayout({
           <h1 className="text-2xl sm:text-4xl font-[900] text-gray-900 mb-2 text-center tracking-tight leading-tight">
             Elegance Essentials
           </h1>
+
           <p className="text-gray-400 mb-8 sm:mb-10 text-center text-sm sm:text-base font-medium">
             Restricted Administrative Access
           </p>
@@ -84,10 +182,14 @@ export default function AdminLayout({
               <label className="text-[11px] font-black text-purple-400 uppercase tracking-[0.2em] ml-1 group-focus-within:text-purple-600 transition-colors">
                 Username
               </label>
+
               <input
                 type="text"
                 value={username}
-                onChange={(e) => setUsername(e.target.value)}
+                onChange={(e) => {
+                  setUsername(e.target.value);
+                  setLoginError("");
+                }}
                 className="w-full px-4 sm:px-6 py-3.5 sm:py-4 bg-gray-50 border-2 border-transparent rounded-[1.25rem] sm:rounded-[1.5rem] focus:bg-white focus:border-purple-200 outline-none transition-all text-gray-800 placeholder-gray-300 font-semibold text-base sm:text-lg cursor-text"
                 placeholder="Admin username"
                 required
@@ -98,21 +200,32 @@ export default function AdminLayout({
               <label className="text-[11px] font-black text-purple-400 uppercase tracking-[0.2em] ml-1 group-focus-within:text-purple-600 transition-colors">
                 Password
               </label>
+
               <input
                 type="password"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={(e) => {
+                  setPassword(e.target.value);
+                  setLoginError("");
+                }}
                 className="w-full px-4 sm:px-6 py-3.5 sm:py-4 bg-gray-50 border-2 border-transparent rounded-[1.25rem] sm:rounded-[1.5rem] focus:bg-white focus:border-purple-200 outline-none transition-all text-gray-800 placeholder-gray-300 font-semibold text-base sm:text-lg cursor-text"
                 placeholder="••••••••"
                 required
               />
             </div>
 
+            {loginError && (
+              <div className="rounded-2xl border border-rose-100 bg-rose-50 px-4 py-3 text-sm font-bold text-rose-600">
+                {loginError}
+              </div>
+            )}
+
             <button
               type="submit"
-              className="w-full bg-gradient-to-r from-purple-600 via-indigo-600 to-purple-700 text-white py-4 sm:py-5 rounded-[1.25rem] sm:rounded-[1.5rem] font-black text-base sm:text-lg hover:shadow-[0_15px_30px_-10px_rgba(79,70,229,0.5)] transition-all active:scale-[0.97] mt-4 sm:mt-6 cursor-pointer"
+              disabled={isLoggingIn}
+              className="w-full bg-gradient-to-r from-purple-600 via-indigo-600 to-purple-700 text-white py-4 sm:py-5 rounded-[1.25rem] sm:rounded-[1.5rem] font-black text-base sm:text-lg hover:shadow-[0_15px_30px_-10px_rgba(79,70,229,0.5)] transition-all active:scale-[0.97] mt-4 sm:mt-6 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
             >
-              Unlock Dashboard
+              {isLoggingIn ? "Checking..." : "Unlock Dashboard"}
             </button>
 
             <Link
@@ -129,19 +242,19 @@ export default function AdminLayout({
 
   return (
     <div className="min-h-screen bg-[#f8f7ff] flex font-sans selection:bg-purple-100 selection:text-purple-900">
-      {/* Mobile Overlay */}
       <div
-        className={`fixed inset-0 z-40 bg-black/40 backdrop-blur-[2px] transition-opacity duration-300 md:hidden ${sidebarOpen
+        className={`fixed inset-0 z-40 bg-black/40 backdrop-blur-[2px] transition-opacity duration-300 md:hidden ${
+          sidebarOpen
             ? "opacity-100 pointer-events-auto"
             : "opacity-0 pointer-events-none"
-          }`}
+        }`}
         onClick={() => setSidebarOpen(false)}
       />
 
-      {/* Sidebar */}
       <aside
-        className={`fixed md:sticky top-0 left-0 z-50 h-screen w-[86%] max-w-[320px] md:w-80 bg-white border-r border-purple-50 flex flex-col shadow-[10px_0_30px_rgba(0,0,0,0.06)] md:shadow-[10px_0_30px_rgba(0,0,0,0.02)] transform transition-transform duration-300 ease-out ${sidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
-          }`}
+        className={`fixed md:sticky top-0 left-0 z-50 h-screen w-[86%] max-w-[320px] md:w-80 bg-white border-r border-purple-50 flex flex-col shadow-[10px_0_30px_rgba(0,0,0,0.06)] md:shadow-[10px_0_30px_rgba(0,0,0,0.02)] transform transition-transform duration-300 ease-out ${
+          sidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
+        }`}
       >
         <div className="p-5 sm:p-6 md:p-10 flex flex-col items-center border-b border-purple-50/50 relative">
           <button
@@ -153,10 +266,7 @@ export default function AdminLayout({
             ✕
           </button>
 
-          <Link
-            href="/admin"
-            className="group flex flex-col items-center cursor-pointer"
-          >
+          <Link href="/admin" className="group flex flex-col items-center cursor-pointer">
             <div className="relative mb-4 md:mb-6">
               <div className="absolute -inset-1 bg-gradient-to-r from-purple-400 to-indigo-400 rounded-2xl blur opacity-20 group-hover:opacity-40 transition duration-500"></div>
               <img
@@ -165,6 +275,7 @@ export default function AdminLayout({
                 className="relative w-16 h-16 md:w-20 md:h-20 rounded-2xl shadow-md object-cover border-2 border-white"
               />
             </div>
+
             <span className="text-lg md:text-xl font-[1000] bg-gradient-to-br from-purple-900 via-indigo-900 to-gray-900 bg-clip-text text-transparent text-center leading-[1.1] tracking-tighter">
               Elegance
               <br />
@@ -180,10 +291,11 @@ export default function AdminLayout({
 
           <Link
             href="/admin"
-            className={`flex items-center space-x-4 px-4 md:px-5 py-3.5 md:py-4 rounded-[1.1rem] md:rounded-[1.25rem] transition-all font-bold group cursor-pointer active:scale-[0.98] ${isActive("/admin")
+            className={`flex items-center space-x-4 px-4 md:px-5 py-3.5 md:py-4 rounded-[1.1rem] md:rounded-[1.25rem] transition-all font-bold group cursor-pointer active:scale-[0.98] ${
+              isActive("/admin")
                 ? "bg-purple-50 text-purple-700"
                 : "text-gray-500 hover:bg-purple-50 hover:text-purple-700"
-              }`}
+            }`}
           >
             <span className="text-xl opacity-70 group-hover:opacity-100 transition-opacity">
               📈
@@ -193,10 +305,11 @@ export default function AdminLayout({
 
           <Link
             href="/admin/products"
-            className={`flex items-center space-x-4 px-4 md:px-5 py-3.5 md:py-4 rounded-[1.1rem] md:rounded-[1.25rem] transition-all font-bold group cursor-pointer active:scale-[0.98] ${isActive("/admin/products")
+            className={`flex items-center space-x-4 px-4 md:px-5 py-3.5 md:py-4 rounded-[1.1rem] md:rounded-[1.25rem] transition-all font-bold group cursor-pointer active:scale-[0.98] ${
+              isActive("/admin/products")
                 ? "bg-purple-50 text-purple-700"
                 : "text-gray-500 hover:bg-purple-50 hover:text-purple-700"
-              }`}
+            }`}
           >
             <span className="text-xl opacity-70 group-hover:opacity-100 transition-opacity">
               📦
@@ -206,10 +319,11 @@ export default function AdminLayout({
 
           <Link
             href="/admin/categories"
-            className={`flex items-center space-x-4 px-4 md:px-5 py-3.5 md:py-4 rounded-[1.1rem] md:rounded-[1.25rem] transition-all font-bold group cursor-pointer active:scale-[0.98] ${isActive("/admin/categories")
+            className={`flex items-center space-x-4 px-4 md:px-5 py-3.5 md:py-4 rounded-[1.1rem] md:rounded-[1.25rem] transition-all font-bold group cursor-pointer active:scale-[0.98] ${
+              isActive("/admin/categories")
                 ? "bg-purple-50 text-purple-700"
                 : "text-gray-500 hover:bg-purple-50 hover:text-purple-700"
-              }`}
+            }`}
           >
             <span className="text-xl opacity-70 group-hover:opacity-100 transition-opacity">
               📁
@@ -245,9 +359,7 @@ export default function AdminLayout({
         </div>
       </aside>
 
-      {/* Main wrapper */}
       <div className="flex-1 min-w-0 flex flex-col">
-        {/* Mobile topbar */}
         <header className="md:hidden sticky top-0 z-30 bg-white/90 backdrop-blur-md border-b border-purple-100 px-4 py-3 flex items-center justify-between">
           <button
             type="button"
@@ -283,7 +395,6 @@ export default function AdminLayout({
           </button>
         </header>
 
-        {/* Main Content */}
         <main className="flex-1 p-4 sm:p-5 md:p-14 overflow-y-auto">
           <div className="max-w-6xl mx-auto animate-in fade-in slide-in-from-bottom-8 duration-1000 ease-out">
             {children}
