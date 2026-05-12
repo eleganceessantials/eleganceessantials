@@ -18,7 +18,7 @@ export default function CategoryHero() {
   const title = formatLabel(category);
 
   return (
-    <section className="relative min-h-[70vh] overflow-hidden">
+    <section className="relative min-h-[58vh] overflow-hidden sm:min-h-[70vh]">
       {/* Background Image */}
       <div className="absolute inset-0">
         <Image
@@ -28,18 +28,19 @@ export default function CategoryHero() {
           priority
           quality={100}
           sizes="100vw"
-          className="object-cover object-center"
+          className="object-cover object-[78%_center] sm:object-center"
         />
 
         {/* Overlay WITHOUT blur */}
-        <div className="absolute inset-0 bg-gradient-to-r from-black/55 via-black/25 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-black/10 sm:from-black/55 sm:via-black/25 sm:to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/35 via-transparent to-transparent sm:hidden" />
       </div>
 
       {/* Content */}
-      <div className="relative z-10 mx-auto flex min-h-[70vh] max-w-7xl items-center px-6 text-white">
-        <div>
+      <div className="relative z-10 mx-auto flex min-h-[58vh] max-w-7xl items-center px-4 pt-20 text-white sm:min-h-[70vh] sm:px-6 sm:pt-0">
+        <div className="max-w-[92%] sm:max-w-none">
           {/* Breadcrumb */}
-          <div className="flex items-center gap-2 text-sm opacity-90">
+          <div className="flex flex-wrap items-center gap-2 text-xs opacity-90 sm:text-sm">
             <Link href="/" className="transition hover:opacity-100">
               Home
             </Link>
@@ -56,11 +57,11 @@ export default function CategoryHero() {
           </div>
 
           {/* Title */}
-          <h1 className="mt-6 text-4xl font-extrabold sm:text-5xl">
+          <h1 className="mt-5 max-w-[280px] text-3xl font-extrabold leading-tight sm:mt-6 sm:max-w-none sm:text-5xl">
             {title}
           </h1>
 
-          <p className="mt-3 max-w-xl text-white/90">
+          <p className="mt-3 max-w-[290px] text-sm leading-6 text-white/90 sm:max-w-xl sm:text-base">
             Discover premium {title.toLowerCase()} products curated just for you.
           </p>
         </div>

@@ -110,7 +110,7 @@ export default function Footer() {
             </div>
 
             {/* Social */}
-            <div className="mt-7 flex items-center gap-4">
+            {/* <div className="mt-7 flex items-center gap-4">
               {[
                 {
                   label: "Facebook",
@@ -176,7 +176,7 @@ export default function Footer() {
                   </svg>
                 </a>
               ))}
-            </div>
+            </div> */}
           </div>
 
           {/* Right: Links */}
