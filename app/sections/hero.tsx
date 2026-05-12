@@ -32,7 +32,7 @@ const Hero = () => {
       >
         {/* Background Image */}
         <img
-          src="/foundation-bottles-advertising-arrangement_23-2149511225.avif"
+          src="/hero2.png"
           alt="Beauty Collection"
           className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 ease-out"
           style={transformStyle}

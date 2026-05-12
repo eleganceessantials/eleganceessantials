@@ -18,50 +18,52 @@ export default function CategoryHero() {
   const title = formatLabel(category);
 
   return (
-    <section className="relative pt-32 pb-20 overflow-hidden">
-      
+    <section className="relative min-h-[70vh] overflow-hidden">
       {/* Background Image */}
       <div className="absolute inset-0">
         <Image
-          src="https://images.unsplash.com/photo-1596462502278-27bfdc403348?q=80&w=1920&auto=format&fit=crop"
+          src="/shophero2.png"
           alt="Beauty Background"
           fill
           priority
-          className="object-cover"
+          quality={100}
+          sizes="100vw"
+          className="object-cover object-center"
         />
-        <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px]" />
+
+        {/* Overlay WITHOUT blur */}
+        <div className="absolute inset-0 bg-gradient-to-r from-black/55 via-black/25 to-transparent" />
       </div>
 
       {/* Content */}
-      <div className="relative max-w-7xl mx-auto px-6 text-white">
-        
-        {/* Breadcrumb */}
-        <div className="text-sm flex items-center gap-2 opacity-90">
-          <Link href="/" className="hover:opacity-100 transition">
-            Home
-          </Link>
+      <div className="relative z-10 mx-auto flex min-h-[70vh] max-w-7xl items-center px-6 text-white">
+        <div>
+          {/* Breadcrumb */}
+          <div className="flex items-center gap-2 text-sm opacity-90">
+            <Link href="/" className="transition hover:opacity-100">
+              Home
+            </Link>
 
-          <span>/</span>
+            <span>/</span>
 
-          <Link href="/category?cat=all" className="hover:opacity-100 transition">
-            Category
-          </Link>
+            <Link href="/category?cat=all" className="transition hover:opacity-100">
+              Category
+            </Link>
 
-          <span>/</span>
+            <span>/</span>
 
-          <span className="font-medium opacity-100">
+            <span className="font-medium opacity-100">{title}</span>
+          </div>
+
+          {/* Title */}
+          <h1 className="mt-6 text-4xl font-extrabold sm:text-5xl">
             {title}
-          </span>
+          </h1>
+
+          <p className="mt-3 max-w-xl text-white/90">
+            Discover premium {title.toLowerCase()} products curated just for you.
+          </p>
         </div>
-
-        {/* Title */}
-        <h1 className="mt-6 text-4xl sm:text-5xl font-extrabold">
-          {title}
-        </h1>
-
-        <p className="mt-3 text-white/90 max-w-xl">
-          Discover premium {title.toLowerCase()} products curated just for you.
-        </p>
       </div>
     </section>
   );
