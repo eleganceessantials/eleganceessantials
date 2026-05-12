@@ -473,12 +473,6 @@ export default function ProductDetailPage() {
                     </div>
                   </div>
                   <div className="rounded-2xl border border-pink-100 bg-[#FDF4F5] p-4 transition hover:bg-white hover:shadow-sm">
-                    <div className="text-xs text-gray-500">Warranty</div>
-                    <div className="mt-1 font-semibold text-black">
-                      7 Days Check
-                    </div>
-                  </div>
-                  <div className="rounded-2xl border border-pink-100 bg-[#FDF4F5] p-4 transition hover:bg-white hover:shadow-sm">
                     <div className="text-xs text-gray-500">Support</div>
                     <div className="mt-1 font-semibold text-black">
                       Chat / Call

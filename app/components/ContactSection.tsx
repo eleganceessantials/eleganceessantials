@@ -6,51 +6,74 @@ export default function ContactSection() {
   return (
     <section className="py-20 bg-white">
       <div className="max-w-7xl mx-auto px-6">
-        <div className="bg-[#0b0b0b] rounded-[3.5rem] p-12 sm:p-16 relative overflow-hidden text-white">
-          {/* Decorative background elements */}
-          <div className="absolute top-0 right-0 w-[40rem] h-[40rem] bg-[#DB005B]/10 rounded-full blur-[120px] -mr-40 -mt-40" />
-          <div className="absolute bottom-0 left-0 w-[30rem] h-[30rem] bg-white/5 rounded-full blur-[100px] -ml-20 -mb-20" />
+        <div className="relative overflow-hidden rounded-[2.5rem] lg:rounded-[3.5rem] bg-[#0b0b0b] text-white">
+          {/* Background Glow */}
+          <div className="absolute top-[-12rem] right-[-10rem] h-[32rem] w-[32rem] rounded-full bg-[#DB005B]/20 blur-[130px]" />
+          <div className="absolute bottom-[-10rem] left-[-8rem] h-[28rem] w-[28rem] rounded-full bg-white/5 blur-[110px]" />
 
-          <div className="relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+          <div className="relative z-10 grid grid-cols-1 lg:grid-cols-[0.9fr_1.1fr] gap-10 lg:gap-14 items-center p-8 sm:p-12 lg:p-16">
+            {/* Left Content */}
             <div>
-              <div className="flex items-center gap-3 mb-6">
-                <span className="h-8 w-1.5 rounded-full bg-[#DB005B]" />
-                <h2 className="text-4xl sm:text-5xl font-black tracking-tighter">
-                  Need Help Choosing?
+              <div className="mb-6 flex items-start gap-4">
+                <span className="mt-2 h-12 w-1.5 rounded-full bg-[#DB005B]" />
+                <h2 className="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight leading-[0.95]">
+                  Need Help
+                  <br />
+                  Choosing?
                 </h2>
               </div>
-              <p className="text-xl text-white/70 mb-10 leading-relaxed max-w-xl">
-                Our beauty experts are just a message away. Get personalized routine advice and order support instantly.
-              </p>
 
-              <div className="flex flex-wrap gap-4">
-                <a 
-                  href="https://wa.me/923334471403" 
-                  target="_blank"
-                  className="px-8 py-4 bg-[#DB005B] text-white rounded-full font-bold text-lg hover:bg-white hover:text-[#DB005B] transition-all flex items-center gap-3"
-                >
-                  Chat with Expert <span>💬</span>
-                </a>
-                <a 
-                  href="tel:03334471403"
-                  className="px-8 py-4 bg-white/10 border border-white/20 text-white rounded-full font-bold text-lg hover:bg-white hover:text-black transition-all flex items-center gap-3"
-                >
-                  Voice Call <span>📞</span>
-                </a>
-              </div>
+              <p className="max-w-xl text-lg sm:text-xl leading-relaxed text-white/65">
+                Our beauty experts are just a message away. Get personalized
+                routine advice and order support instantly.
+              </p>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-              <div className="bg-white/5 border border-white/10 p-8 rounded-3xl backdrop-blur-sm">
-                <p className="text-[#DB005B] font-bold text-sm uppercase tracking-widest mb-2">WhatsApp 1</p>
-                <p className="text-2xl font-black">0333-4471403</p>
-                <p className="text-white/40 text-sm mt-2">Primary Support & Orders</p>
-              </div>
-              <div className="bg-white/5 border border-white/10 p-8 rounded-3xl backdrop-blur-sm">
-                <p className="text-[#DB005B] font-bold text-sm uppercase tracking-widest mb-2">WhatsApp 2</p>
-                <p className="text-2xl font-black">0308-4243437</p>
-                <p className="text-white/40 text-sm mt-2">Delivery & Queries</p>
-              </div>
+            {/* Right Contact Cards */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+              <a
+                href="https://wa.me/923114051542"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group rounded-[2rem] border border-white/10 bg-white/[0.06] p-7 sm:p-8 backdrop-blur-sm transition-all hover:-translate-y-1 hover:border-[#DB005B]/50 hover:bg-white/[0.09]"
+              >
+                <div className="mb-8 flex h-12 w-12 items-center justify-center rounded-2xl bg-[#DB005B]/15 text-2xl">
+                  💬
+                </div>
+
+                <p className="mb-3 text-xs font-black uppercase tracking-[0.28em] text-[#DB005B]">
+                  WhatsApp
+                </p>
+
+                <p className="text-2xl sm:text-3xl font-black tracking-tight">
+                  0311 4051542
+                </p>
+
+                <p className="mt-3 text-sm text-white/45">
+                  Primary Support & Orders
+                </p>
+              </a>
+
+              <a
+                href="mailto:Supporteleganceessantials@gmail.com"
+                className="group rounded-[2rem] border border-white/10 bg-white/[0.06] p-7 sm:p-8 backdrop-blur-sm transition-all hover:-translate-y-1 hover:border-[#DB005B]/50 hover:bg-white/[0.09]"
+              >
+                <div className="mb-8 flex h-12 w-12 items-center justify-center rounded-2xl bg-[#DB005B]/15 text-2xl">
+                  ✉️
+                </div>
+
+                <p className="mb-3 text-xs font-black uppercase tracking-[0.28em] text-[#DB005B]">
+                  Email
+                </p>
+
+                <p className="text-lg sm:text-xl font-black leading-snug break-all">
+                  Supporteleganceessantials@gmail.com
+                </p>
+
+                <p className="mt-3 text-sm text-white/45">
+                  Support & Queries
+                </p>
+              </a>
             </div>
           </div>
         </div>
