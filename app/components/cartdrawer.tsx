@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { useCart } from "../context/CartContext";
 import { useRouter } from "next/navigation";
 
@@ -12,6 +13,21 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
   const { cart, removeFromCart, total } = useCart();
   const router = useRouter();
 
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const originalBodyOverflow = document.body.style.overflow;
+    const originalHtmlOverflow = document.documentElement.style.overflow;
+
+    document.body.style.overflow = "hidden";
+    document.documentElement.style.overflow = "hidden";
+
+    return () => {
+      document.body.style.overflow = originalBodyOverflow;
+      document.documentElement.style.overflow = originalHtmlOverflow;
+    };
+  }, [isOpen]);
+
   const handleCheckout = () => {
     onClose();
     router.push("/checkout");
@@ -21,22 +37,26 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
     <>
       {/* Overlay */}
       <div
-        className={`fixed inset-0 z-40 bg-black/60 transition-opacity duration-300 ${
-          isOpen ? "opacity-100 visible" : "opacity-0 invisible"
+        className={`fixed inset-0 z-[99998] bg-black/45 backdrop-blur-md transition-all duration-300 ${
+          isOpen
+            ? "opacity-100 visible pointer-events-auto"
+            : "opacity-0 invisible pointer-events-none"
         }`}
         onClick={onClose}
       />
 
       {/* Drawer */}
       <div
-        className={`fixed top-0 right-0 z-50 h-full w-[340px] max-w-[90vw] bg-white shadow-2xl transform transition-transform duration-300 ${
+        className={`fixed right-0 top-0 z-[99999] h-[100dvh] w-[340px] max-w-[90vw] transform bg-white shadow-2xl transition-transform duration-300 ease-out ${
           isOpen ? "translate-x-0" : "translate-x-full"
         }`}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-5 py-4 border-b">
+        <div className="sticky top-0 z-10 flex items-center justify-between border-b border-pink-100 bg-white px-5 py-4">
           <div>
-            <h2 className="text-xl font-extrabold text-[#DB005B]">Your Cart</h2>
+            <h2 className="text-xl font-extrabold text-[#DB005B]">
+              Your Cart
+            </h2>
             <p className="text-xs text-gray-500">
               {cart.length} item{cart.length === 1 ? "" : "s"} in your cart
             </p>
@@ -44,105 +64,119 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
 
           <button
             onClick={onClose}
-            className="w-10 h-10 rounded-full border border-gray-200 flex items-center justify-center hover:bg-gray-50 transition cursor-pointer"
+            className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full border border-pink-100 bg-[#FCF8F8] transition hover:bg-[#FDE8EF]"
           >
-            <span className="text-black text-xl">×</span>
+            <span className="text-xl leading-none text-black">×</span>
           </button>
         </div>
 
         {/* Body */}
-        <div className="px-5 py-4">
-          {cart.length === 0 ? (
-            <div className="py-16 text-center">
-              <div className="mx-auto w-14 h-14 rounded-full bg-[#fdeded] flex items-center justify-center text-2xl">
-                🛍️
-              </div>
-              <h3 className="mt-4 font-bold text-[#DB005B]">Cart is empty</h3>
-              <p className="mt-1 text-sm text-gray-500">
-                Add some products to see them here.
-              </p>
+        <div className="h-[calc(100dvh-78px)] overflow-hidden">
+          <div
+            className={`px-5 py-4 ${
+              cart.length > 0
+                ? "h-[calc(100dvh-230px)] overflow-y-auto"
+                : "h-full overflow-y-auto"
+            }`}
+          >
+            {cart.length === 0 ? (
+              <div className="flex min-h-[65vh] flex-col items-center justify-center text-center">
+                <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-[#FDE8EF] text-3xl">
+                  🛍️
+                </div>
 
-              <button
-                onClick={() => {
-                  onClose();
-                  router.push("/category?cat=all");
-                }}
-                className="mt-6 inline-flex items-center justify-center px-5 py-2.5 rounded-full border border-[#DB005B] bg-[#DB005B] text-white hover:bg-white hover:text-[#DB005B] transition cursor-pointer"
-              >
-                Continue Shopping
-              </button>
-            </div>
-          ) : (
-            <ul className="space-y-4 max-h-[55vh] overflow-y-auto pr-1">
-              {cart.map((item) => (
-                <li
-                  key={item.id}
-                  className="flex gap-3 border border-gray-100 rounded-2xl p-3 hover:shadow-sm transition"
+                <h3 className="mt-5 text-xl font-extrabold text-[#DB005B]">
+                  Cart is empty
+                </h3>
+
+                <p className="mt-2 max-w-[240px] text-sm leading-relaxed text-gray-500">
+                  Add your favorite products and they’ll appear here.
+                </p>
+
+                <button
+                  onClick={() => {
+                    onClose();
+                    router.push("/category?cat=all");
+                  }}
+                  className="mt-7 inline-flex cursor-pointer items-center justify-center rounded-full border border-[#DB005B] bg-[#DB005B] px-6 py-3 text-sm font-semibold text-white transition hover:bg-white hover:text-[#DB005B]"
                 >
-                  <img
-                    src={item.image}
-                    alt={item.name}
-                    className="w-16 h-16 object-cover rounded-xl bg-gray-100"
-                  />
-
-                  <div className="flex-1">
-                    <p className="font-semibold text-black leading-tight">
-                      {item.name}
-                    </p>
-                    <p className="text-sm text-gray-500 mt-1">
-                      Rs. {item.price} × {item.quantity}
-                    </p>
-
-                    <p className="text-sm font-bold text-black mt-2">
-                      Subtotal: Rs. {Number(item.price) * Number(item.quantity)}
-                    </p>
-                  </div>
-
-                  <button
-                    onClick={() => removeFromCart(item.id)}
-                    className="w-9 h-9 rounded-full border border-gray-200 flex items-center justify-center hover:bg-[#fdeded] transition cursor-pointer"
+                  Continue Shopping
+                </button>
+              </div>
+            ) : (
+              <ul className="space-y-4 pr-1">
+                {cart.map((item) => (
+                  <li
+                    key={item.id}
+                    className="flex gap-3 rounded-2xl border border-pink-100 bg-[#FCF8F8] p-3 transition hover:shadow-sm"
                   >
-                    <span className="text-[#DB005B] text-lg">×</span>
-                  </button>
-                </li>
-              ))}
-            </ul>
+                    <img
+                      src={item.image}
+                      alt={item.name}
+                      className="h-16 w-16 shrink-0 rounded-xl bg-white object-cover"
+                    />
+
+                    <div className="min-w-0 flex-1">
+                      <p className="line-clamp-2 text-sm font-bold leading-tight text-black">
+                        {item.name}
+                      </p>
+
+                      <p className="mt-1 text-sm text-gray-500">
+                        Rs. {item.price} × {item.quantity}
+                      </p>
+
+                      <p className="mt-2 text-sm font-extrabold text-black">
+                        Rs. {Number(item.price) * Number(item.quantity)}
+                      </p>
+                    </div>
+
+                    <button
+                      onClick={() => removeFromCart(item.id)}
+                      className="flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full border border-pink-100 bg-white transition hover:bg-[#FDE8EF]"
+                    >
+                      <span className="text-lg leading-none text-[#DB005B]">
+                        ×
+                      </span>
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+
+          {/* Footer */}
+          {cart.length > 0 && (
+            <div className="absolute bottom-0 left-0 right-0 border-t border-pink-100 bg-white px-5 py-4 shadow-[0_-12px_30px_rgba(0,0,0,0.05)]">
+              <div className="flex items-center justify-between">
+                <p className="text-sm font-medium text-gray-500">Total</p>
+
+                <p className="text-xl font-extrabold text-[#DB005B]">
+                  Rs. {total}
+                </p>
+              </div>
+
+              <div className="mt-4 grid grid-cols-2 gap-3">
+                <button
+                  onClick={onClose}
+                  className="w-full cursor-pointer rounded-full border border-[#DB005B] bg-white py-3 text-sm font-semibold text-[#DB005B] transition hover:bg-[#DB005B] hover:text-white"
+                >
+                  Close
+                </button>
+
+                <button
+                  onClick={handleCheckout}
+                  className="w-full cursor-pointer rounded-full border border-[#DB005B] bg-[#DB005B] py-3 text-sm font-semibold text-white transition hover:bg-white hover:text-[#DB005B]"
+                >
+                  Checkout
+                </button>
+              </div>
+
+              <p className="mt-3 text-center text-[11px] text-gray-400">
+                Secure checkout • Fast delivery • Easy returns
+              </p>
+            </div>
           )}
         </div>
-
-        {/* Footer */}
-        {cart.length > 0 && (
-          <div className="absolute bottom-0 left-0 right-0 border-t bg-white px-5 py-4">
-            <div className="flex items-center justify-between">
-              <p className="text-sm text-gray-500">Total</p>
-              <p className="text-xl font-extrabold text-[#DB005B]">
-                Rs. {total}
-              </p>
-            </div>
-
-            <div className="mt-4 grid grid-cols-2 gap-3">
-              {/* Close */}
-              <button
-                onClick={onClose}
-                className="w-full py-2.5 rounded-full border border-[#DB005B] bg-white text-[#DB005B] hover:bg-[#DB005B] hover:text-white transition cursor-pointer"
-              >
-                Close
-              </button>
-
-              {/* Checkout */}
-              <button
-                onClick={handleCheckout}
-                className="w-full py-2.5 rounded-full border border-[#DB005B] bg-[#DB005B] text-white hover:bg-white hover:text-[#DB005B] transition cursor-pointer"
-              >
-                Checkout
-              </button>
-            </div>
-
-            <p className="mt-3 text-[11px] text-gray-400 text-center">
-              Secure checkout • Fast delivery • Easy returns
-            </p>
-          </div>
-        )}
       </div>
     </>
   );
