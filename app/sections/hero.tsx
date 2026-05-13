@@ -32,14 +32,14 @@ const Hero = () => {
       >
         {/* Background Image */}
         <img
-          src="/hero2.png"
+          src="/hmhero1.png"
           alt="Beauty Collection"
           className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 ease-out"
           style={transformStyle}
         />
 
         {/* Dark + Gradient Overlay */}
-        <div className="absolute inset-0 bg-black/55" />
+        <div className="absolute inset-0 bg-black/20" />
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/35 to-black/10" />
 
         {/* Soft Pink Glow */}
@@ -58,8 +58,8 @@ const Hero = () => {
 
             {/* Heading */}
             <h1 className="mt-6 text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight text-white">
-              Discover Your{" "}
-              <span className="text-[#DB005B]">Natural Beauty</span>
+              Discover Your{" "} <br></br>
+              <span className="text-[#f199bd]">Natural Beauty</span>
             </h1>
 
             {/* Subtitle */}

@@ -22,7 +22,7 @@ export default function CategoryHero() {
       {/* Background Image */}
       <div className="absolute inset-0">
         <Image
-          src="/shophero2.png"
+          src="/shophero3.png"
           alt="Beauty Background"
           fill
           priority
