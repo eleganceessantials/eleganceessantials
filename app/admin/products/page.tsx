@@ -99,7 +99,9 @@ export default function ManageProducts() {
 
   const fetchCategories = async () => {
     try {
-      const res = await fetch("/api/categories");
+      const res = await fetch("/api/categories", {
+        cache: "no-store",
+      });
       if (!res.ok) return;
 
       const data = await res.json();
@@ -276,13 +278,17 @@ export default function ManageProducts() {
   };
 
   const openEdit = (product: any) => {
+    const matchedCategory = categories.find(
+      (c) => String(c.name).toLowerCase() === String(product.category).toLowerCase()
+    );
+
     setEditingProduct(product);
     setFormData({
       name: product.name || "",
       slug: product.slug || "",
       price: product.price || 0,
       discountPrice: product.discountPrice || "",
-      category: product.category || categories[0]?.name || "SkinCare",
+      category: matchedCategory ? matchedCategory.name : (product.category || categories[0]?.name || "SkinCare"),
       image: product.image || "",
       description: product.description || "",
     });
@@ -831,6 +837,11 @@ export default function ManageProducts() {
                       {c.name}
                     </option>
                   ))}
+                  {editingProduct && formData.category && !categories.some((c) => c.name === formData.category) && (
+                    <option value={formData.category}>
+                      {formData.category} (Not in Categories List)
+                    </option>
+                  )}
                 </select>
               </div>
 

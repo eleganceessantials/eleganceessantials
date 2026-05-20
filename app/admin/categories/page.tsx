@@ -35,6 +35,7 @@ export default function ManageCategories() {
           "x-admin-username": user || "",
           "x-admin-password": pass || "",
         },
+        cache: "no-store",
       });
 
       if (res.ok) {

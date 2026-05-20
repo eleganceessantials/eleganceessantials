@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { NextResponse } from "next/server";
 import clientPromise from "@/app/lib/mongodb";
 import { ObjectId } from "mongodb";
@@ -55,12 +57,31 @@ export async function PUT(req: Request) {
     const body = await req.json();
     const { _id, ...updateData } = body;
 
+    if (!_id || !ObjectId.isValid(_id)) {
+      return NextResponse.json({ error: "Invalid category ID" }, { status: 400 });
+    }
+
+    const categoryId = new ObjectId(_id);
+
+    // Fetch the old category name before updating
+    const oldCategory = await db.collection("categories").findOne({ _id: categoryId });
+
     const result = await db.collection("categories").updateOne(
-      { _id: new ObjectId(_id) },
+      { _id: categoryId },
       { $set: updateData }
     );
+
+    // If the category name was updated, cascade the update to the products collection
+    if (result.modifiedCount > 0 && oldCategory && oldCategory.name !== updateData.name) {
+      await db.collection("products").updateMany(
+        { category: oldCategory.name },
+        { $set: { category: updateData.name } }
+      );
+    }
+
     return NextResponse.json(result);
   } catch (e) {
+    console.error("Failed to update category:", e);
     return NextResponse.json({ error: "Failed to update" }, { status: 500 });
   }
 }
