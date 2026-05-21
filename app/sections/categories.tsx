@@ -1,12 +1,16 @@
 "use client";
 
 import Link from "next/link";
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Navigation } from "swiper/modules";
+
+import "swiper/css";
 
 interface Category {
   _id: string;
   name: string;
-  image: string;
+  image?: string | null;
   value: string;
 }
 
@@ -44,9 +48,7 @@ export default function Categories() {
       } catch (err) {
         if (isMounted) {
           setCategories([]);
-          setError(
-            err instanceof Error ? err.message : "Something went wrong"
-          );
+          setError(err instanceof Error ? err.message : "Something went wrong");
         }
       } finally {
         if (isMounted) {
@@ -64,16 +66,17 @@ export default function Categories() {
 
   if (loading) {
     return (
-      <section className="py-16 sm:py-20 bg-[#FCF8F8]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <div className="text-center mb-10">
-            <div className="h-10 w-64 bg-gray-200 animate-pulse mx-auto rounded-xl" />
+      <section className="bg-[#FCF8F8] py-16 sm:py-20">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6">
+          <div className="mb-10 text-center">
+            <div className="mx-auto h-10 w-64 animate-pulse rounded-xl bg-gray-200" />
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-4 md:gap-6">
             {[1, 2, 3, 4].map((i) => (
               <div
                 key={i}
-                className="aspect-square bg-gray-200 animate-pulse rounded-2xl"
+                className="aspect-square animate-pulse rounded-2xl bg-gray-200"
               />
             ))}
           </div>
@@ -84,17 +87,17 @@ export default function Categories() {
 
   if (error) {
     return (
-      <section className="py-16 sm:py-20 bg-[#FCF8F8]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+      <section className="bg-[#FCF8F8] py-16 sm:py-20">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6">
           <div className="text-center">
             <div className="flex items-center justify-center gap-3">
               <span className="h-8 w-1.5 rounded-full bg-[#DB005B]" />
-              <h2 className="text-3xl sm:text-4xl text-black font-extrabold">
+              <h2 className="text-3xl font-extrabold text-black sm:text-4xl">
                 Shop by Categories
               </h2>
             </div>
 
-            <p className="mt-4 text-sm sm:text-base text-red-600">
+            <p className="mt-4 text-sm text-red-600 sm:text-base">
               Failed to load categories. Please try again later.
             </p>
           </div>
@@ -103,59 +106,196 @@ export default function Categories() {
     );
   }
 
-  if (!Array.isArray(categories) || categories.length === 0) return null;
+  if (!categories.length) return null;
 
   return (
-    <section className="py-16 sm:py-20 bg-[#FCF8F8]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6">
-        <div className="text-center mb-10 sm:mb-14">
+    <section className="bg-[#FCF8F8] py-16 sm:py-20">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6">
+        <div className="mb-10 text-center sm:mb-14">
           <div className="flex items-center justify-center gap-3">
             <span className="h-8 w-1.5 rounded-full bg-[#DB005B]" />
-            <h2 className="text-3xl sm:text-4xl text-black font-extrabold">
+            <h2 className="text-3xl font-extrabold text-black sm:text-4xl">
               Shop by Categories
             </h2>
           </div>
 
-          <p className="mt-3 text-gray-600 max-w-2xl mx-auto">
+          <p className="mx-auto mt-3 max-w-2xl text-gray-600">
             Explore our beauty essentials by category — curated collections
             designed for every routine.
           </p>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-5 sm:gap-6 mb-12 sm:mb-16">
-          {categories.slice(0, 4).map((category) => (
-            <Link
-              key={category._id}
-              href={`/category?cat=${category.value}`}
-              className="group bg-white rounded-2xl overflow-hidden border border-transparent hover:border-pink-100 shadow-sm hover:shadow-xl transition-all duration-300 cursor-pointer"
+        <div className="category-slider-wrap relative mb-12 sm:mb-16">
+          <button
+            type="button"
+            className="category-prev absolute left-0 top-1/2 z-20 hidden h-12 w-12 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-[#f5c7da] bg-white text-[#DB005B] shadow-[0_12px_35px_rgba(219,0,91,0.16)] transition hover:bg-[#DB005B] hover:text-white lg:flex"
+            aria-label="Previous category"
+          >
+            <svg
+              width="22"
+              height="22"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
             >
-              <div className="w-full aspect-square overflow-hidden bg-gray-100">
-                <img
-                  src={category.image}
-                  alt={category.name}
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                />
-              </div>
+              <path d="M15 18L9 12L15 6" />
+            </svg>
+          </button>
 
-              <div className="p-4 sm:p-5 flex items-center justify-between">
-                <p className="font-semibold text-black">{category.name}</p>
-                <span className="text-[#DB005B] font-bold transition group-hover:translate-x-1">
-                  →
-                </span>
-              </div>
-            </Link>
-          ))}
+          <button
+            type="button"
+            className="category-next absolute right-0 top-1/2 z-20 hidden h-12 w-12 translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-[#f5c7da] bg-white text-[#DB005B] shadow-[0_12px_35px_rgba(219,0,91,0.16)] transition hover:bg-[#DB005B] hover:text-white lg:flex"
+            aria-label="Next category"
+          >
+            <svg
+              width="22"
+              height="22"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M9 18L15 12L9 6" />
+            </svg>
+          </button>
+
+          <Swiper
+            modules={[Navigation]}
+            navigation={{
+              prevEl: ".category-prev",
+              nextEl: ".category-next",
+            }}
+            spaceBetween={20}
+            slidesPerView={2}
+            breakpoints={{
+              0: {
+                slidesPerView: 2,
+                spaceBetween: 14,
+              },
+              640: {
+                slidesPerView: 2.3,
+                spaceBetween: 18,
+              },
+              768: {
+                slidesPerView: 3,
+                spaceBetween: 20,
+              },
+              1024: {
+                slidesPerView: 4,
+                spaceBetween: 24,
+              },
+            }}
+            className="category-swiper"
+          >
+            {categories.map((category) => {
+              const imageSrc =
+                typeof category.image === "string" &&
+                category.image.trim().length > 0
+                  ? category.image.trim()
+                  : null;
+
+              return (
+                <SwiperSlide key={category._id}>
+                  <Link
+                    href={`/category?cat=${category.value}`}
+                    className="group block cursor-pointer overflow-hidden rounded-2xl border border-transparent bg-white shadow-sm transition-all duration-300 hover:border-pink-100 hover:shadow-xl"
+                  >
+                    <div className="flex aspect-square w-full items-center justify-center overflow-hidden bg-gradient-to-br from-[#fff2f7] to-[#f7ddea]">
+                      {imageSrc ? (
+                        <img
+                          src={imageSrc}
+                          alt={category.name || "Category"}
+                          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
+                        />
+                      ) : (
+                        <div className="flex h-full w-full flex-col items-center justify-center px-4 text-center">
+                          <div className="mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-white text-2xl shadow-sm">
+                            ✨
+                          </div>
+                          <span className="text-sm font-semibold text-[#DB005B]">
+                            {category.name || "Category"}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="flex items-center justify-between p-4 sm:p-5">
+                      <p className="line-clamp-1 font-semibold text-black">
+                        {category.name}
+                      </p>
+
+                      <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[#fff1f7] text-[#DB005B] transition group-hover:bg-[#DB005B] group-hover:text-white">
+                        <svg
+                          width="17"
+                          height="17"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2.4"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <path d="M5 12H19" />
+                          <path d="M13 6L19 12L13 18" />
+                        </svg>
+                      </span>
+                    </div>
+                  </Link>
+                </SwiperSlide>
+              );
+            })}
+          </Swiper>
         </div>
 
         <div className="text-center">
           <Link
             href="/category?cat=all"
-            className="inline-flex items-center justify-center gap-2 px-10 sm:px-12 py-3.5 rounded-full bg-[#DB005B] text-white font-semibold border border-[#DB005B] hover:bg-white hover:text-[#DB005B] transition cursor-pointer"
+            className="inline-flex items-center justify-center gap-2 rounded-full border border-[#DB005B] bg-[#DB005B] px-10 py-3.5 font-semibold text-white transition hover:bg-white hover:text-[#DB005B] sm:px-12"
           >
-            Shop Now <span aria-hidden>→</span>
+            Shop Now
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.4"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M5 12H19" />
+              <path d="M13 6L19 12L13 18" />
+            </svg>
           </Link>
         </div>
       </div>
+
+      <style jsx global>{`
+        .category-slider-wrap .swiper {
+          padding: 4px 2px 16px;
+        }
+
+        .category-slider-wrap .swiper-slide {
+          height: auto;
+        }
+
+        .category-prev.swiper-button-disabled,
+        .category-next.swiper-button-disabled {
+          opacity: 0.35;
+          pointer-events: none;
+        }
+
+        @media (max-width: 767px) {
+          .category-slider-wrap .swiper {
+            overflow: visible;
+          }
+        }
+      `}</style>
     </section>
   );
 }
