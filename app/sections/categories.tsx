@@ -3,9 +3,10 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
-import { Navigation } from "swiper/modules";
+import { Navigation, Pagination } from "swiper/modules";
 
 import "swiper/css";
+import "swiper/css/pagination";
 
 interface Category {
   _id: string;
@@ -128,7 +129,7 @@ export default function Categories() {
         <div className="category-slider-wrap relative mb-12 sm:mb-16">
           <button
             type="button"
-            className="category-prev absolute left-0 top-1/2 z-20 hidden h-12 w-12 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-[#f5c7da] bg-white text-[#DB005B] shadow-[0_12px_35px_rgba(219,0,91,0.16)] transition hover:bg-[#DB005B] hover:text-white lg:flex"
+            className="category-prev absolute left-1 top-1/2 z-20 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-[#f5c7da] bg-white text-[#DB005B] shadow-[0_12px_35px_rgba(219,0,91,0.16)] transition hover:bg-[#DB005B] hover:text-white sm:left-0 sm:h-12 sm:w-12 sm:-translate-x-1/2"
             aria-label="Previous category"
           >
             <svg
@@ -147,7 +148,7 @@ export default function Categories() {
 
           <button
             type="button"
-            className="category-next absolute right-0 top-1/2 z-20 hidden h-12 w-12 translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-[#f5c7da] bg-white text-[#DB005B] shadow-[0_12px_35px_rgba(219,0,91,0.16)] transition hover:bg-[#DB005B] hover:text-white lg:flex"
+            className="category-next absolute right-1 top-1/2 z-20 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-[#f5c7da] bg-white text-[#DB005B] shadow-[0_12px_35px_rgba(219,0,91,0.16)] transition hover:bg-[#DB005B] hover:text-white sm:right-0 sm:h-12 sm:w-12 sm:translate-x-1/2"
             aria-label="Next category"
           >
             <svg
@@ -165,10 +166,13 @@ export default function Categories() {
           </button>
 
           <Swiper
-            modules={[Navigation]}
+            modules={[Navigation, Pagination]}
             navigation={{
               prevEl: ".category-prev",
               nextEl: ".category-next",
+            }}
+            pagination={{
+              clickable: true,
             }}
             spaceBetween={20}
             slidesPerView={2}
@@ -277,7 +281,7 @@ export default function Categories() {
 
       <style jsx global>{`
         .category-slider-wrap .swiper {
-          padding: 4px 2px 16px;
+          padding: 4px 2px 48px;
         }
 
         .category-slider-wrap .swiper-slide {
@@ -290,9 +294,47 @@ export default function Categories() {
           pointer-events: none;
         }
 
+        .category-slider-wrap .swiper-pagination {
+          bottom: 4px !important;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 7px;
+        }
+
+        .category-slider-wrap .swiper-pagination-bullet {
+          width: 8px;
+          height: 8px;
+          margin: 0 !important;
+          border-radius: 999px;
+          background: rgba(219, 0, 91, 0.28);
+          opacity: 1;
+          transition: all 0.25s ease;
+        }
+
+        .category-slider-wrap .swiper-pagination-bullet-active {
+          width: 26px;
+          background: #db005b;
+        }
+
         @media (max-width: 767px) {
+          .category-slider-wrap {
+            padding-left: 10px;
+            padding-right: 10px;
+          }
+
           .category-slider-wrap .swiper {
-            overflow: visible;
+            overflow: hidden;
+            padding-bottom: 46px;
+          }
+
+          .category-prev,
+          .category-next {
+            top: 43%;
+          }
+
+          .category-slider-wrap .swiper-pagination {
+            bottom: 2px !important;
           }
         }
       `}</style>
